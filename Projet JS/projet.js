@@ -25,7 +25,7 @@
 */
 
 function search(){
-    try{
+    try{//test
     const searchButton = document.querySelector("#btn");
     const searchInput = document.querySelector("#search");
     console.log(searchInput);
