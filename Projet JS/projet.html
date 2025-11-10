@@ -24,8 +24,19 @@
                 <label for="search" class="hidden">Recherche</label>
                 <input id="search" name="search" type="text" placeholder="Recherchez un Pokémon (ex: pikachu ou 25)" />
             </div>
+
+            <label for="type-select" class="hidden">Type</label>
+            <select id="type-select" aria-label="Filtrer par type">
+                <option value="">Tous les types</option>
+            </select>
+
+            <label for="region-select" class="hidden">Région</label>
+            <select id="region-select" aria-label="Filtrer par région">
+                <option value="">Toutes régions</option>
+            </select>
+
             <button id="btn" class="btn" type="button">Rechercher</button>
-            <button id="btn-random" class="btn red" type="button" title="Pokémon aléatoire">Aléatoire</button>
+            <button id="btn-clear" class="btn" type="button" title="Effacer">Effacer</button>
         </div>
 
         <section id="result" aria-live="polite">
