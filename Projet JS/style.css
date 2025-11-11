@@ -240,14 +240,44 @@ body{
 .types{ display:flex; gap:6px; flex-wrap:wrap }
 .type{ padding:6px 8px; border-radius:999px; font-weight:800; font-size:11px; color:#fff; text-transform:uppercase; letter-spacing:.5px; box-shadow:0 6px 12px rgba(0,0,0,0.06) }
 
-/* sample type colors */
-.type-fire{ background: linear-gradient(180deg,#ff7a28,#e64912) }
-.type-water{ background: linear-gradient(180deg,#4db7ff,#0077d9) }
-.type-grass{ background: linear-gradient(180deg,#79e089,#2da94b) }
-.type-electric{ background: linear-gradient(180deg,#ffd84d,#ffb100); color:#2b2b2b }
-.type-psychic{ background: linear-gradient(180deg,#ff83d6,#cc2e9a) }
-.type-rock{ background: linear-gradient(180deg,#c9b49f,#7b5f3a) }
-.type-flying{ background: linear-gradient(180deg,#9fcfff,#5a9fe6); color:#072044 }
+.type-normal   { background: linear-gradient(180deg,#d9d6cf,#bdb6a8) }
+.type-fire     { background: linear-gradient(180deg,#ff9a6b,#e84d1b) }
+.type-water    { background: linear-gradient(180deg,#8fd4ff,#1380d6) }
+.type-grass    { background: linear-gradient(180deg,#b6f09b,#3db14a) }
+.type-electric { background: linear-gradient(180deg,#fff18a,#ffbf00); color:#222 }
+.type-ice      { background: linear-gradient(180deg,#dff6ff,#76d2f0); color:#073b4c }
+.type-fighting { background: linear-gradient(180deg,#ffb08b,#d3542b) }
+.type-poison   { background: linear-gradient(180deg,#d7b1ff,#8b4fcf) }
+.type-ground   { background: linear-gradient(180deg,#f0d7a6,#c79a4a); color:#2b1700 }
+.type-flying   { background: linear-gradient(180deg,#dbe9ff,#7fb6ff); color:#072044 }
+.type-psychic  { background: linear-gradient(180deg,#ffd7ef,#ff73c8); color:#2b0736 }
+.type-bug      { background: linear-gradient(180deg,#dfffac,#8bc34a); color:#063000 }
+.type-rock     { background: linear-gradient(180deg,#e7d5b8,#9e7d4a); color:#2b1a00 }
+.type-ghost    { background: linear-gradient(180deg,#cfc9ff,#6f63d9); color:#07103a }
+.type-dragon   { background: linear-gradient(180deg,#c9e0ff,#5b8be6); color:#05183a }
+.type-dark     { background: linear-gradient(180deg,#bdb4b1,#6b5d57); color:#fff }
+.type-steel    { background: linear-gradient(180deg,#e6eef3,#9fb3bf); color:#063038 }
+.type-fairy    { background: linear-gradient(180deg,#ffe9fb,#ffb8e1); color:#4a033b }
+
+/* types spéciaux / legacy */
+.type-unknown  { background: linear-gradient(180deg,#f3f3f3,#d6d6d6); color:#222 }
+.type-shadow   { background: linear-gradient(180deg,#b08bff,#5a2fe6); color:#fff }
+
+/* Ensure base .type still applies shared styling */
+.type{
+    padding:6px 8px;
+    border-radius:999px;
+    font-weight:800;
+    font-size:11px;
+    color:#fff;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    box-shadow:0 6px 12px rgba(0,0,0,0.06);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    white-space:nowrap;
+}
 
 /* Stats */
 .stats{ margin-top:8px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px }
@@ -318,4 +348,5 @@ body{
 .filters select:focus {
     outline: 2px solid rgba(43,123,233,0.18);
     outline-offset: 2px;
+
 }
