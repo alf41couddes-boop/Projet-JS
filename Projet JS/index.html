@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PokeProjet</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js" defer></script>
+</head>
+<body>
+    <main class="app">
+        <header class="header">
+            <div class="logo" aria-hidden="true">
+                <div class="pokeball"></div>
+            </div>
+            <div>
+                <h1 class="title">PokeProjet</h1>
+                <div class="subtitle">Explore les Pokémon — recherche par nom, id, type ou région</div>
+            </div>
+        </header>
+
+        <div class="toolbar" role="search" aria-label="Recherche de Pokémon">
+            <div class="search" style="flex:1">
+                <label for="search" class="hidden">Recherche</label>
+                <input id="search" name="search" type="text" placeholder="Recherchez un Pokémon (ex: pikachu ou 25)" />
+            </div>
+            <button id="btn" class="btn" type="button">Rechercher</button>
+            <button id="btn-random" class="btn red" type="button" title="Pokémon aléatoire">Aléatoire</button>
+            <button id="btn-all" class="btn" type="button" title="Tout afficher">Tout afficher</button>
+            <button id="btn-clear" class="btn" type="button" title="Réinitialiser">Réinitialiser</button>
+        </div>
+
+        <div class="layout">
+            <aside class="filters" aria-label="Filtres de recherche">
+                <h2 class="filters-title">Filtres</h2>
+
+                <div class="filter-group">
+                    <label for="filter-type">Type</label>
+                    <select id="filter-type" name="type">
+                        <option value="">Tous les types</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filter-region">Région</label>
+                    <select id="filter-region" name="region">
+                        <option value="">Toutes les régions</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button id="apply-filters" class="btn-small">Appliquer</button>
+                    <button id="reset-filters" class="btn-small">Réinitialiser</button>
+                </div>
+
+                <p class="filters-note subtitle">Astuce : combine recherche + filtres pour affiner.</p>
+            </aside>
+
+            <section class="main-view">
+                <section id="result" aria-live="polite">
+                    <p id="p" class="subtitle">Chargement initial — affichage de tous les Pokémon…</p>
+                </section>
+
+                <div class="view-controls">
+                    <div class="view-stats subtitle" id="view-count">0 Pokémon affichés</div>
+                    <div class="view-actions">
+                        <button id="view-grid" class="btn-small" title="Affichage grille">Grille</button>
+                        <button id="view-list" class="btn-small" title="Affichage liste">Liste</button>
+                    </div>
+                </div>
+
+                <section id="answer_area" class="grid" aria-label="Résultats Pokémon">
+                    <!-- cartes injectées par projet.js -->
+                </section>
+
+                <nav class="pagination" aria-label="Pagination résultats" hidden>
+                    <button class="btn-small" id="prev-page">Précédent</button>
+                    <span id="page-info" class="subtitle">Page 1</span>
+                    <button class="btn-small" id="next-page">Suivant</button>
+                </nav>
+            </section>
+        </div>
+
+        <template id="card-template">
+            <article class="card" role="article">
+                <div class="sparkles" aria-hidden="true"></div>
+                <div class="head">
+                    <div>
+                        <div class="poke-name">Nom</div>
+                        <div class="subtitle poke-id">#000</div>
+                    </div>
+                    <div class="rarity">Commun</div>
+                </div>
+
+                <div class="poke-media center">
+                    <img src="" alt="" />
+                </div>
+
+                <div class="types" aria-hidden="true"></div>
+
+                <div class="stats" aria-hidden="true">
+                    <div class="stat"><div class="num">0</div><small>PV</small></div>
+                    <div class="stat"><div class="num">0</div><small>Atk</small></div>
+                    <div class="stat"><div class="num">0</div><small>Def</small></div>
+                </div>
+
+                <div class="card-footer">
+                    <button class="btn-small">Détails</button>
+                    <div class="subtitle">Taille • Poids</div>
+                </div>
+            </article>
+        </template>
+    </main>
+</body>
+</html>
