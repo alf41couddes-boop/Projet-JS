@@ -17,7 +17,6 @@ function $q(...selectors){
 const elements = {
     searchInput: $q('#search', 'input[name="search"]'),
     btnSearch: $q('#btn', 'button[data-action="search"]'),
-    btnRandom: $q('#btn-random', 'button[data-action="random"]'),
     btnClear: $q('#btn-clear', '#clear-btn', 'button[data-action="clear"]'),
     btnAll: $q('#btn-all'),
     applyFilters: $q('#apply-filters'),
@@ -30,10 +29,27 @@ const elements = {
     viewCount: $q('#view-count')
 };
 
-async function fetchJSON(url){
-    const res = await fetch(url);
-    if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-    return res.json();
+// Remplace fetch par XMLHttpRequest SYNCHRONE (conforme à la demande).
+// Attention : les requêtes synchrones bloquent l'UI pendant leur exécution.
+function fetchJSON(url){
+    if(!url) throw new Error('fetchJSON: url manquante');
+    try{
+        const xhr = new XMLHttpRequest();
+        // false -> requête SYNCHRONE (bloquante)
+        xhr.open('GET', url, false);
+        // Essayer de forcer le type de réponse sur 'json' si supporté
+        try { xhr.responseType = 'json'; } catch(e) {}
+        xhr.send();
+
+        if(xhr.status >= 200 && xhr.status < 300){
+            const raw = (xhr.responseType === 'json' && xhr.response) ? xhr.response : xhr.responseText;
+            return (typeof raw === 'string') ? JSON.parse(raw || '{}') : raw;
+        }
+        throw new Error('HTTP ' + xhr.status + ' for ' + url);
+    } catch(e){
+        // Remonter l'erreur pour que le code appelant la gère
+        throw e;
+    }
 }
 
 function showMessage(msg){
@@ -143,7 +159,87 @@ async function fetchAllAndRender(limit = MAX_RENDER){
     }
 }
 
-async function listByNameOrId(query){
+// Fonction unifiée pour recherche (texte/type/region)
+async function performSearch(query, type, region){
+    return await (async () => {
+        // réutilise la logique centralisée déjà définie plus haut
+        // renvoie simplement après exécution
+        if(typeof query === 'string' && query.trim() !== ''){
+            await performTextSearch(query);
+            return;
+        }
+        // pas de texte -> type/region
+        await (async () => {
+            if(type && region){
+                // combinaison
+                try{
+                    showMessage('Chargement des Pokémon pour la région et le type...');
+                    clearResults();
+                    const regionData = await fetchJSON(`${API_ROOT}/region/${encodeURIComponent(region)}`);
+                    if(!regionData.pokedexes || regionData.pokedexes.length===0){ showMessage('Aucun pokedex disponible pour cette région.'); return; }
+                    const pokedex = await fetchJSON(regionData.pokedexes[0].url);
+                    const regionNames = new Set((pokedex.pokemon_entries || []).map(e => e.pokemon_species.name));
+                    const typeData = await fetchJSON(`${API_ROOT}/type/${encodeURIComponent(type)}`);
+                    const typeNames = new Set((typeData.pokemon || []).map(e => e.pokemon.name));
+                    const intersection = Array.from(regionNames).filter(n => typeNames.has(n));
+                    if(intersection.length === 0){ showMessage(`Aucun Pokémon trouvé pour la région ${region} et le type ${type}.`); return; }
+                    showMessage(`Affichage de ${intersection.length} Pokémon de la région ${region} et de type ${type}`);
+                    let rendered = 0;
+                    for(let i=0;i<intersection.length;i+=CHUNK_SIZE){
+                        const chunk = intersection.slice(i, i+CHUNK_SIZE);
+                        const details = await Promise.all(chunk.map(n => getPokemonDetails(n).catch(() => null)));
+                        details.filter(Boolean).forEach(d => { renderPokemonCard(d); rendered++; });
+                        updateCount(rendered);
+                    }
+                } catch(e){ clearResults(); showMessage('Erreur lors du chargement combiné région + type.'); console.error(e); }
+                return;
+            }
+            if(type){
+                try{
+                    showMessage('Chargement des Pokémon pour le type...');
+                    clearResults();
+                    const data = await fetchJSON(`${API_ROOT}/type/${encodeURIComponent(type)}`);
+                    const entries = (data.pokemon || []).map(p => p.pokemon).slice(0, MAX_RENDER);
+                    showMessage(`Affichage de ${entries.length} Pokémon de type ${type}`);
+                    let rendered = 0;
+                    for(let i=0;i<entries.length;i+=CHUNK_SIZE){
+                        const chunk = entries.slice(i, i+CHUNK_SIZE);
+                        const details = await Promise.all(chunk.map(e => getPokemonDetails(e.name).catch(() => null)));
+                        details.filter(Boolean).forEach(d => { renderPokemonCard(d); rendered++; });
+                        updateCount(rendered);
+                    }
+                } catch(e){ clearResults(); showMessage('Erreur lors du chargement par type.'); console.error(e); }
+                return;
+            }
+            if(region){
+                try{
+                    showMessage('Chargement des Pokémon pour la région...');
+                    clearResults();
+                    const regionData = await fetchJSON(`${API_ROOT}/region/${encodeURIComponent(region)}`);
+                    if(!regionData.pokedexes || regionData.pokedexes.length===0){ showMessage('Aucun pokedex disponible pour cette région.'); return; }
+                    const pokedex = await fetchJSON(regionData.pokedexes[0].url);
+                    const entries = (pokedex.pokemon_entries || []).map(e => e.pokemon_species).slice(0, MAX_RENDER);
+                    showMessage(`Affichage de ${entries.length} Pokémon de la région ${region}`);
+                    let rendered = 0;
+                    for(let i=0;i<entries.length;i+=CHUNK_SIZE){
+                        const chunk = entries.slice(i, i+CHUNK_SIZE);
+                        const details = await Promise.all(chunk.map(e => getPokemonDetails(e.name).catch(() => null)));
+                        details.filter(Boolean).forEach(d => { renderPokemonCard(d); rendered++; });
+                        updateCount(rendered);
+                    }
+                } catch(e){ clearResults(); showMessage('Erreur lors du chargement par région.'); console.error(e); }
+                return;
+            }
+            // aucun filtre -> afficher tout
+            await fetchAllAndRender();
+        })();
+    })();
+}
+
+// helper: recherche textuelle (exacte puis préfixe)
+async function performTextSearch(q){
+    const query = (q || '').trim();
+    if(!query) return;
     try{
         showMessage('Recherche en cours...');
         clearResults();
@@ -151,157 +247,37 @@ async function listByNameOrId(query){
         renderPokemonCard(p);
         updateCount(1);
         showMessage('');
+        return;
     } catch(e){
-        try {
+        try{
             showMessage('Aucun résultat exact, recherche par début de nom...');
             const all = await fetchJSON(`${API_ROOT}/pokemon?limit=${MAX_RENDER}`);
             const matches = (all.results || []).filter(poke => poke.name.startsWith(query.toLowerCase()));
-            if(matches.length === 0){
-                clearResults();
-                showMessage(`Aucun Pokémon trouvé pour « ${query} »`);
-                return;
-            }
+            if(matches.length === 0){ clearResults(); showMessage(`Aucun Pokémon trouvé pour « ${query} »`); return; }
             const toShow = matches.slice(0, 200);
             showMessage(`${toShow.length} résultat(s) commençant par « ${query} » :`);
-            const details = await Promise.all(toShow.map(poke => getPokemonDetails(poke.name).catch(() => null)));
-            details.filter(Boolean).forEach(renderPokemonCard);
-            updateCount(details.filter(Boolean).length);
-        } catch(e2){
-            clearResults();
-            showMessage(`Aucun Pokémon trouvé pour « ${query} »`);
-            console.error(e2);
-        }
-    }
-}
-
-async function listByType(typeName){
-    if(!typeName){
-        await fetchAllAndRender();
-        return;
-    }
-    try{
-        showMessage('Chargement des Pokémon pour le type...');
-        clearResults();
-        const data = await fetchJSON(`${API_ROOT}/type/${encodeURIComponent(typeName)}`);
-        const entries = (data.pokemon || []).map(p => p.pokemon).slice(0, MAX_RENDER);
-        showMessage(`Affichage de ${entries.length} Pokémon de type ${typeName}`);
-        let rendered = 0;
-        for(let i=0;i<entries.length;i+=CHUNK_SIZE){
-            const chunk = entries.slice(i, i+CHUNK_SIZE);
-            const details = await Promise.all(chunk.map(e => getPokemonDetails(e.name).catch(() => null)));
-            details.filter(Boolean).forEach(d => { renderPokemonCard(d); rendered++; });
-            updateCount(rendered);
-        }
-    } catch(e){
-        clearResults();
-        showMessage('Erreur lors du chargement par type.');
-        console.error(e);
-    }
-}
-
-async function listByRegion(regionName){
-    if(!regionName){
-        await fetchAllAndRender();
-        return;
-    }
-    try{
-        showMessage('Chargement des Pokémon pour la région...');
-        clearResults();
-        const region = await fetchJSON(`${API_ROOT}/region/${encodeURIComponent(regionName)}`);
-        if(!region.pokedexes || region.pokedexes.length===0){
-            showMessage('Aucun pokedex disponible pour cette région.');
+            let details = [];
+            for(let i=0;i<toShow.length;i+=CHUNK_SIZE){
+                const chunk = toShow.slice(i, i+CHUNK_SIZE);
+                const chunkDetails = await Promise.all(chunk.map(p => getPokemonDetails(p.name).catch(() => null)));
+                details = details.concat(chunkDetails.filter(Boolean));
+                details.forEach(renderPokemonCard);
+                updateCount(details.length);
+            }
             return;
-        }
-        const pokedexUrl = region.pokedexes[0].url;
-        const pokedex = await fetchJSON(pokedexUrl);
-        const entries = (pokedex.pokemon_entries || []).map(e => e.pokemon_species).slice(0, MAX_RENDER);
-        showMessage(`Affichage de ${entries.length} Pokémon de la région ${regionName}`);
-        let rendered = 0;
-        for(let i=0;i<entries.length;i+=CHUNK_SIZE){
-            const chunk = entries.slice(i, i+CHUNK_SIZE);
-            const details = await Promise.all(chunk.map(e => getPokemonDetails(e.name).catch(() => null)));
-            details.filter(Boolean).forEach(d => { renderPokemonCard(d); rendered++; });
-            updateCount(rendered);
-        }
-    } catch(e){
-        clearResults();
-        showMessage('Erreur lors du chargement par région.');
-        console.error(e);
+        } catch(e2){ clearResults(); showMessage(`Aucun Pokémon trouvé pour « ${query} »`); console.error(e2); return; }
     }
 }
 
-async function listByRegionAndType(regionName, typeName) {
-    if(!regionName && !typeName){
-        await fetchAllAndRender();
-        return;
-    }
-    if(regionName && !typeName) return listByRegion(regionName);
-    if(typeName && !regionName) return listByType(typeName);
-
-    try {
-        showMessage('Chargement des Pokémon pour la région et le type...');
-        clearResults();
-        const region = await fetchJSON(`${API_ROOT}/region/${encodeURIComponent(regionName)}`);
-        if (!region.pokedexes || region.pokedexes.length === 0) {
-            showMessage('Aucun pokedex disponible pour cette région.');
-            return;
-        }
-        const pokedexUrl = region.pokedexes[0].url;
-        const pokedex = await fetchJSON(pokedexUrl);
-        const regionNames = new Set((pokedex.pokemon_entries || []).map(e => e.pokemon_species.name));
-
-        const typeData = await fetchJSON(`${API_ROOT}/type/${encodeURIComponent(typeName)}`);
-        const typeNames = new Set((typeData.pokemon || []).map(e => e.pokemon.name));
-
-        const intersection = Array.from(regionNames).filter(name => typeNames.has(name));
-        if (intersection.length === 0) {
-            showMessage(`Aucun Pokémon trouvé pour la région ${regionName} et le type ${typeName}.`);
-            return;
-        }
-        showMessage(`Affichage de ${intersection.length} Pokémon de la région ${regionName} et de type ${typeName}`);
-        let rendered = 0;
-        for(let i=0;i<intersection.length;i+=CHUNK_SIZE){
-            const chunk = intersection.slice(i, i+CHUNK_SIZE);
-            const details = await Promise.all(chunk.map(n => getPokemonDetails(n).catch(() => null)));
-            details.filter(Boolean).forEach(d => { renderPokemonCard(d); rendered++; });
-            updateCount(rendered);
-        }
-    } catch (e) {
-        clearResults();
-        showMessage('Erreur lors du chargement combiné région + type.');
-        console.error(e);
-    }
-}
-
+// remplace l'ancien onSearchClick pour utiliser performSearch
 async function onSearchClick(){
     const q = (elements.searchInput && elements.searchInput.value || '').trim();
     const type = elements.typeSelect && elements.typeSelect.value;
     const region = elements.regionSelect && elements.regionSelect.value;
-
-    if(q){
-        await listByNameOrId(q);
-        return;
-    }
-    if(type && region){
-        await listByRegionAndType(region, type);
-        return;
-    }
-    if(type){
-        await listByType(type);
-        return;
-    }
-    if(region){
-        await listByRegion(region);
-        return;
-    }
-    // si rien -> afficher tout
-    await fetchAllAndRender();
+    await performSearch(q, type, region);
 }
 
-async function getTotalPokemonCount(){
-    const data = await fetchJSON(`${API_ROOT}/pokemon?limit=1`);
-    return data.count || 1000;
-}
+// Note: la fonctionnalité 'Aléatoire' a été supprimée — getTotalPokemonCount supprimée.
 
 function onClear(){
     if(elements.searchInput) elements.searchInput.value = '';
@@ -341,32 +317,14 @@ async function populateRegions(){
 
 function attachEvents(){
     if(elements.btnSearch) elements.btnSearch.addEventListener('click', () => onSearchClick());
-    if(elements.btnRandom){
-        elements.btnRandom.addEventListener('click', async () => {
-            try{
-                const total = await getTotalPokemonCount();
-                const id = Math.floor(Math.random() * Math.max(total, 1)) + 1;
-                const det = await getPokemonDetails(String(id));
-                clearResults();
-                renderPokemonCard(det);
-                updateCount(1);
-                showMessage('');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch(err){
-                console.error('random:', err);
-                showMessage('Erreur lors de la sélection aléatoire.');
-            }
-        });
-    }
+    // La fonctionnalité aléatoire a été supprimée — aucun gestionnaire attaché.
     if(elements.btnAll) elements.btnAll.addEventListener('click', async () => { await fetchAllAndRender(); });
     if(elements.btnClear) elements.btnClear.addEventListener('click', onClear);
     if(elements.applyFilters) elements.applyFilters.addEventListener('click', async () => {
         const type = elements.typeSelect && elements.typeSelect.value;
         const region = elements.regionSelect && elements.regionSelect.value;
-        if(type && region) await listByRegionAndType(region, type);
-        else if(type) await listByType(type);
-        else if(region) await listByRegion(region);
-        else await fetchAllAndRender();
+        // utilise la fonction unifiée
+        await performSearch('', type, region);
     });
     if(elements.resetFilters) elements.resetFilters.addEventListener('click', onClear);
 
@@ -375,9 +333,9 @@ function attachEvents(){
         if((elements.searchInput && elements.searchInput.value || '').trim() === '') {
             const type = elements.typeSelect.value;
             const region = elements.regionSelect && elements.regionSelect.value;
-            if(type && region) listByRegionAndType(region, type);
-            else if(type) listByType(type);
-            else if(region) listByRegion(region);
+            if(type && region) performSearch('', type, region);
+            else if(type) performSearch('', type, region);
+            else if(region) performSearch('', type, region);
             else fetchAllAndRender();
         }
     });
@@ -386,9 +344,9 @@ function attachEvents(){
         if((elements.searchInput && elements.searchInput.value || '').trim() === '') {
             const type = elements.typeSelect && elements.typeSelect.value;
             const region = elements.regionSelect.value;
-            if(type && region) listByRegionAndType(region, type);
-            else if(type) listByType(type);
-            else if(region) listByRegion(region);
+            if(type && region) performSearch('', type, region);
+            else if(type) performSearch('', type, region);
+            else if(region) performSearch('', type, region);
             else fetchAllAndRender();
         }
     });
