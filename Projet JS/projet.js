@@ -1,5 +1,3 @@
-
-
 function $q(...selectors){
     for(const s of selectors){
         try { const el = document.querySelector(s); if(el) return el; } catch(e){}
@@ -32,10 +30,13 @@ function search(){
         xhr.send();
         const response = JSON.parse(xhr.response);
 
-        elements.answerArea.innerHTML = response.name + "\n Poids : " + response.weight +
-         "\n  Taille " + response.height +
-         "<br><img src='" + response.sprites.front_default + " '/>";
-        elements.template.type = response.types[0].type.name;
+        elements.answerArea.innerHTML = `
+                <div>
+                    <h3>${response.name}</h3>
+
+                    <img src="${response.sprites.front_default}" />
+                </div>
+            `;
 
 
         console.log(xhr);
@@ -57,7 +58,7 @@ function search(){
 const searchButton = document.querySelector("#btn");
 searchButton.addEventListener("click",search);
 
-function displayAllPokemons() {
+function afficheTousLesPokemons() {
     try {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", "https://pokeapi.co/api/v2/pokemon?limit=100", false); // Limite à 100 Pokémon pour la démonstration
@@ -79,8 +80,6 @@ function displayAllPokemons() {
             elements.answerArea.innerHTML += `
                 <div>
                     <h3>${pokemonName}</h3>
-                    <p>Poids : ${detailsResponse.weight}</p>
-                    <p>Taille : ${detailsResponse.height}</p>
                     <img src="${detailsResponse.sprites.front_default}" alt="${pokemonName}" />
                 </div>
             `;
@@ -93,4 +92,7 @@ function displayAllPokemons() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", displayAllPokemons);
+document.addEventListener("DOMContentLoaded", afficheTousLesPokemons);
+
+
+
