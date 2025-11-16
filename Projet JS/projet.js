@@ -57,3 +57,40 @@ function search(){
 const searchButton = document.querySelector("#btn");
 searchButton.addEventListener("click",search);
 
+function displayAllPokemons() {
+    try {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", "https://pokeapi.co/api/v2/pokemon?limit=100", false); // Limite à 100 Pokémon pour la démonstration
+        xhr.send();
+        const response = JSON.parse(xhr.response);
+
+        elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
+
+        response.results.forEach(pokemon => {
+            const pokemonName = pokemon.name;
+            const pokemonUrl = pokemon.url;
+
+            // Récupérer les détails de chaque Pokémon
+            const detailsXhr = new XMLHttpRequest();
+            detailsXhr.open("GET", pokemonUrl, false);
+            detailsXhr.send();
+            const detailsResponse = JSON.parse(detailsXhr.response);
+
+            elements.answerArea.innerHTML += `
+                <div>
+                    <h3>${pokemonName}</h3>
+                    <p>Poids : ${detailsResponse.weight}</p>
+                    <p>Taille : ${detailsResponse.height}</p>
+                    <img src="${detailsResponse.sprites.front_default}" alt="${pokemonName}" />
+                </div>
+            `;
+        });
+
+        console.log(xhr);
+        console.log(response);
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", displayAllPokemons);
