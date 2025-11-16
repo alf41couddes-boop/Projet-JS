@@ -7,8 +7,8 @@ public class ListeMembre {
         this.listeMembre = new ArrayList <Membre> ();
     }
 
-    public ArrayList<String> listeCompteurComparatif(Membre m){ //algo de recommandation
-        ArrayList<String> listeCompteurComparatif = new ArrayList<>();
+    public ArrayList<Double> listeCompteurComparatif(Membre m){ //algo de recommandation
+        ArrayList<Double> listeCompteurComparatif = new ArrayList<>();
         for (int i = 0;i<listeMembre.size();i++){
             listeCompteurComparatif.add(i,m.comparaison(listeMembre.get(i)));
         }

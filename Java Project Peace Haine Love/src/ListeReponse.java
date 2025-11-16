@@ -18,10 +18,6 @@ public class ListeReponse {
         } 
     }
 
-    public void selection(Reponse r){  
-            listeRep.add(r.getQuestion().getIdQuestion(),r);
-    }
-
     public void add(Reponse r){
         listeRep.add(r);
     }

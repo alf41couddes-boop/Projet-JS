@@ -1,4 +1,3 @@
-import java.text.DecimalFormat;
 import java.util.Scanner;
 
 public class Membre extends Utilisateur {
@@ -14,7 +13,7 @@ public class Membre extends Utilisateur {
         this.prenom = prenom;
         this.age = age;
         this.bio = bio;
-        this.listeRep = new ListeReponse();
+        this.listeRep = listeRep;
     }
 
     public void remplirProfil(String nom, String prenom, int age, String bio){
@@ -42,16 +41,14 @@ public class Membre extends Utilisateur {
         return listeRep;
     }
 
-    public String comparaison(Membre m){            // le type est string pour conserver un format 
+    public double comparaison(Membre m){
         double compteurComparatif = 0 ;
-        DecimalFormat f = new DecimalFormat();      // avec deux chiffres après la virgule
-	    f.setMaximumFractionDigits(2);    //
-         for (int i = 0; i<listeRep.size(); i++){
+         for (int i = 0; i<listeRep.size(); i++){   
             if(listeRep.getRep(i) == m.getListeRep().getRep(i)){
                 compteurComparatif++;
             }
         }
         compteurComparatif = (compteurComparatif/listeRep.size())*100;
-        return f.format(compteurComparatif);
+        return Math.floor(compteurComparatif);
     }
 }

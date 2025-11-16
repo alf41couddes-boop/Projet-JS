@@ -26,7 +26,7 @@ public class App {
 
         lq1.add(r11);lq1.add(r12);
         lq2.add(r21);lq2.add(r22);lq2.add(r23);lq2.add(r24);
-        lq3.add(r31);lq3.add(r32);lq2.add(r33);lq3.add(r34);lq2.add(r35);
+        lq3.add(r31);lq3.add(r32);lq3.add(r33);lq3.add(r34);lq3.add(r35);
         
         l1.add(r11);l1.add(r22);l1.add(r31);
         l2.add(r11);l2.add(r21);l2.add(r32);
