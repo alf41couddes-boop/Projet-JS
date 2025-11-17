@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>PokeProjet</title>
     <link rel="stylesheet" href="style.css">
-    <script src="api.js" defer></script>
+    <script src="projet.js" defer></script>
 </head>
 <body>
     <main class="app">
@@ -64,9 +64,20 @@
                     <div class="view-stats subtitle" id="view-count">0 Pokémon affichés</div>
                 </div>
 
-                <section id="answer_area" class="grid" aria-label="Résultats Pokémon">
-                    <!-- cartes injectées par projet.js -->
-                </section>
+                                <section id="answer_area" class="grid" aria-label="Résultats Pokémon">
+                                        <!-- cartes injectées par projet.js -->
+                                        <!-- Table minimal pour le snippet simple (utilise #poke-rows pour le JS) -->
+                                        <table id="poke-table" style="width:100%;border-collapse:collapse;margin-top:6px;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align:left;padding:8px;border-bottom:1px solid rgba(10,10,30,0.04)">ID</th>
+                                                    <th style="text-align:left;padding:8px;border-bottom:1px solid rgba(10,10,30,0.04)">Nom</th>
+                                                    <th style="text-align:left;padding:8px;border-bottom:1px solid rgba(10,10,30,0.04)">Image</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="poke-rows"></tbody>
+                                        </table>
+                                </section>
 
                 <nav class="pagination" aria-label="Pagination résultats" hidden>
                     <button class="btn-small" id="prev-page">Précédent</button>
