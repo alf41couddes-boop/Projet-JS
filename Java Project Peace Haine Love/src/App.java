@@ -7,6 +7,7 @@ public class App {
         ListeReponse lq3 = new ListeReponse();
         Membre m1= new Membre(1, "Trogneux", "Jean Michel", 77,"amateur de cours de français", l1);
         Membre m2= new Membre(2, "Macron", "Emmanuel", 58,"passionné de littérature et de l'histoire de la banque Rotschild", l2);
+        ListeMembre lm = new ListeMembre();
         Question q1 = new Question(1, "Détestes-tu les grandes soirées dans lesquelles tu ne connais pas beaucoup de monde ?", false);
         Question q2 = new Question(2, "Quel(s) type(s) de musique détestes-tu ?", false);
         Question q3 = new Question(3, "Quelle période de ta vie as-tu le plus détesté ?", true);
@@ -31,6 +32,8 @@ public class App {
         l1.add(r11);l1.add(r22);l1.add(r31);
         l2.add(r11);l2.add(r21);l2.add(r32);
 
+        lm.add(m1);lm.add(m2);
+        
         m1.afficheProfil();
         m2.afficheProfil();
 
@@ -38,7 +41,8 @@ public class App {
         l2.afficheListeRep();
 
         System.out.println("Correspondance à " + m1.comparaison(m2) + "%");
-   
+        lm.afficheListeCompteurComparatif(m1);
+        lm.afficheListeCompteurComparatifTriee(m1);
    
     }
 }
