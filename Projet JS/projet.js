@@ -30,7 +30,6 @@ function search(){
         .then(response => response.json())//transformer la réponse en JSON exploitable
         .then(data => { //obtenir les données JSON
             console.log(response)   //pti test qui print la promise
-            if(!response.ok){
                 elements.answerArea.innerHTML = `
                     <div>
                         <h3>${data.name}</h3>
@@ -43,7 +42,6 @@ function search(){
                     return;
                 }
                 throw new Error(`HTTP ${res.status}`);
-            } 
         })
     }
 
@@ -51,23 +49,22 @@ function search(){
         elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
         const response = fetch("https://pokeapi.co/api/v2/pokemon?limit=100")
         .then(response => response.json())//transformer la réponse en JSON exploitable
-        .then(data => { //obtenir les données JSON + faut mettre tout dans cette accolade
+        .then(async data => { //obtenir les données JSON + faut mettre tout dans cette accolade + async pour asynchrone
             console.log(response)      //pti test qui print la promise
-            
-            data.results.forEach(pokemon => {
-                const pokemonName = pokemon.name; //on recup son nom      
-                const pokemonUrl = pokemon.url;     //et son url (les 2 seuls infos a recup)
-                
-                fetch(pokemonUrl)                          //la on fait une requete pour chaque pokemon (seul moyen d'avoir + dinfo)
-                .then(response => response.json())
-                .then(data => {
-                    const pokemonImg = data.sprites.front_default;  //notamment pour recup l'imng
+            console.log(data)          //pti test qui print les données JSON
+            const promises = data.results.map(poke =>       //requete pour chaque poke (pour chopper id img)
+                fetch(poke.url).then(res => res.json()));
+
+            const pokemons = await Promise.all(promises);   //ca attend que la promesse du fetch soit rempli pour ensuite continuer
+            //pokemons.sort((a, b) => a.id - b.id); //trie par id croissant
+            pokemons.forEach(poke => { //pour chaque poke
                     elements.answerArea.innerHTML += `
-                        <h3>${pokemonName}</h3>
-                        <img src="${pokemonImg}" />
+                        <div>
+                            <h3>${poke.name} (#${poke.id})</h3>
+                            <img src="${poke.sprites.front_default}" />
+                        </div>
                     `;
-                })
-            })
+                });
 
         })
     }
