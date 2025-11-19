@@ -57,11 +57,22 @@ function search(){
 
             const pokemons = await Promise.all(promises);   //ca attend que la promesse du fetch soit rempli pour ensuite continuer
             //pokemons.sort((a, b) => a.id - b.id); //trie par id croissant
+            
             pokemons.forEach(poke => { //pour chaque poke
+                    
                     elements.answerArea.innerHTML += `
                         <div>
                             <h3>${poke.name} (#${poke.id})</h3>
-                            <img src="${poke.sprites.front_default}" />
+
+                            <img src="${poke.sprites.front_default}"
+                            class="pokemon-img"
+                            poke-types="${poke.types.map(t => t.type.name).join(', ')}"
+                            generation="${poke.past_abilities.map(p => p.generation.name).join(', ')}"
+                            region="${poke.location_area_encounters}"
+                            data-species-url="${poke.species.url}"
+                            style="cursor:pointer"
+                            />
+
                         </div>
                     `;
                 });
@@ -70,11 +81,32 @@ function search(){
     }
 }
 
+function afficherCaracteristiques(img){
+
+    const speciesUrl = img.dataset.speciesUrl;
+    const pokeTypes = img.getAttribute("poke-types");
+    const generation = img.getAttribute("generation");
+    const region = img.getAttribute("region");
+    console.log(pokeTypes);
+    alert(
+        "URL des évolutions : " + speciesUrl +
+        "\n Types : " + pokeTypes +
+        "\n Génération : " + generation +
+        "\n Région : " + region
+    );
+}
+
 const searchButton = document.querySelector("#btn");
 searchButton.addEventListener("click",search);
 document.addEventListener("DOMContentLoaded", search);
 
-//si dessous l'ancien code
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("pokemon-img")) {
+        afficherCaracteristiques(e.target);
+    }
+});
+
+//ci dessous l'ancien code
 /*
 function $q(...selectors){
     for(const s of selectors){
