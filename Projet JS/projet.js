@@ -41,7 +41,7 @@ function search(){
                     elements.resultArea.innerHTML = `<p class="subtitle">Aucun Pokémon trouvé pour « ${q} ».</p>`;
                     return;
                 }
-                throw new Error(`HTTP ${res.status}`);
+                throw new Error(`HTTP ${data.status}`);
         })
     }
 
@@ -70,6 +70,7 @@ function search(){
                             generation="${poke.past_abilities.map(p => p.generation.name).join(', ')}"
                             region="${poke.location_area_encounters}"
                             data-species-url="${poke.species.url}"
+                            stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
                             style="cursor:pointer"
                             />
 
@@ -81,18 +82,46 @@ function search(){
     }
 }
 
+async function searchNameElement(url) {
+
+    try {
+        const response = fetch(url)
+        .then(response => response.json())//transformer la réponse en JSON exploitable
+        .then(data => {
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        if (data.name) {
+            return data.name;
+        }
+
+       else throw new Error("No name field in JSON");
+        });
+
+    }catch (error) {
+        console.error("Erreur dans searchNameElement:", error);
+        return null;
+    }
+}
+
+
 function afficherCaracteristiques(img){
 
     const speciesUrl = img.dataset.speciesUrl;
     const pokeTypes = img.getAttribute("poke-types");
-    const generation = img.getAttribute("generation");
+    const generation = searchNameElement(img.getAttribute("generation"));
     const region = img.getAttribute("region");
+    const stats = img.getAttribute("stats");
     console.log(pokeTypes);
     alert(
         "URL des évolutions : " + speciesUrl +
         "\n Types : " + pokeTypes +
         "\n Génération : " + generation +
-        "\n Région : " + region
+        "\n Région : " + region + searchNameElement(region) +
+        "\n Stats : " + stats
+
     );
 }
 
