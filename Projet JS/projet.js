@@ -66,10 +66,11 @@ function search(){
 
                             <img src="${poke.sprites.front_default}"
                             class="pokemon-img"
+                            id="${poke.id}"
                             poke-types="${poke.types.map(t => t.type.name).join(', ')}"
-                            generation="${poke.past_abilities.map(p => p.generation.name).join(', ')}"
+                            generation="${poke.forms[0].url}"
                             region="${poke.location_area_encounters}"
-                            data-species-url="${poke.species.url}"
+                            species-url="${poke.species.url}"
                             stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
                             style="cursor:pointer"
                             />
@@ -82,7 +83,7 @@ function search(){
     }
 }
 
-async function searchNameElement(url) {
+function searchNameElement(url) {
 
     try {
         const response = fetch(url)
@@ -109,17 +110,27 @@ async function searchNameElement(url) {
 
 function afficherCaracteristiques(img){
 
-    const speciesUrl = img.dataset.speciesUrl;
+    const speciesUrl = searchNameElement(img.getAttribute("species-url"));
     const pokeTypes = img.getAttribute("poke-types");
     const generation = searchNameElement(img.getAttribute("generation"));
-    const region = img.getAttribute("region");
+
+    const id = img.getAttribute("id");
+    let region = 0;
+    if(id>0 && id<101){
+
+    }
+    else if(id>100 && id<201){
+
+    }
+
+
     const stats = img.getAttribute("stats");
     console.log(pokeTypes);
     alert(
         "URL des évolutions : " + speciesUrl +
         "\n Types : " + pokeTypes +
         "\n Génération : " + generation +
-        "\n Région : " + region + searchNameElement(region) +
+        "\n Région : " + region +
         "\n Stats : " + stats
 
     );
