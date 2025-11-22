@@ -37,8 +37,8 @@ function search(){
                     throw new Error(`HTTP ${response.status}`);
                 }
 
-            response.json()});  //transformer la réponse en JSON exploitable
-        
+            response.json();  //transformer la réponse en JSON exploitable
+        })
         .then(data => { //obtenir les données JSON
             console.log(response)   //pti test qui print la promise
                 elements.answerArea.innerHTML = `
@@ -61,7 +61,7 @@ function search(){
                     
         })
     
-
+    }
     else if (elements.searchInput.value==""){   //si c vide on affiche tout
         elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
         const response = fetch("https://pokeapi.co/api/v2/pokemon?limit=100")
