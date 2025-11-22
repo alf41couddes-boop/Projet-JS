@@ -37,7 +37,7 @@ function search(){
                     throw new Error(`HTTP ${response.status}`);
                 }
 
-            response.json();  //transformer la réponse en JSON exploitable
+            return response.json();  //transformer la réponse en JSON exploitable
         })
         .then(data => { //obtenir les données JSON
             console.log(response)   //pti test qui print la promise
