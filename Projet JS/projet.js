@@ -27,23 +27,40 @@ function search(){
     if(elements.searchInput.value!=""){ //si c'est pas vide
         elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
         const response = fetch("https://pokeapi.co/api/v2/pokemon/" + elements.searchInput.value)
-        .then(response => response.json())//transformer la réponse en JSON exploitable
+        .then(response => {
+            
+            if (response.status === 404) {
+                    elements.resultArea.innerHTML = `<p class="subtitle">Aucun Pokémon trouvé pour « ${q} ».</p>`;
+                    return;
+                }
+            else if (!response.ok) { 
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+            response.json()});  //transformer la réponse en JSON exploitable
+        
         .then(data => { //obtenir les données JSON
             console.log(response)   //pti test qui print la promise
                 elements.answerArea.innerHTML = `
                     <div>
-                        <h3>${data.name}</h3>
+                            <h3>${data.name} (#${data.id})</h3>
 
-                        <img src="${data.sprites.front_default}" />
-                    </div>
+                            <img src="${data.sprites.front_default}"
+                            class="pokemon-img"
+                            id="${data.id}"
+                            poke-types="${data.types.map(t => t.type.name).join(', ')}"
+                            
+                            region="${data.location_area_encounters}"
+                            species-url="${data.species.url}"
+                            stats="${data.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                            style="cursor:pointer"
+                            />
+
+                        </div>
                 `;
-                if (data.status === 404) {
-                    elements.resultArea.innerHTML = `<p class="subtitle">Aucun Pokémon trouvé pour « ${q} ».</p>`;
-                    return;
-                }
-                throw new Error(`HTTP ${data.status}`);
+                    
         })
-    }
+    
 
     else if (elements.searchInput.value==""){   //si c vide on affiche tout
         elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
@@ -68,7 +85,7 @@ function search(){
                             class="pokemon-img"
                             id="${poke.id}"
                             poke-types="${poke.types.map(t => t.type.name).join(', ')}"
-                            generation="${poke.forms[0].url}"
+                            
                             region="${poke.location_area_encounters}"
                             species-url="${poke.species.url}"
                             stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
@@ -83,51 +100,111 @@ function search(){
     }
 }
 
-function searchNameElement(url) {
-
+async function searchUrlEvolutionChain(url) {
     try {
-        const response = fetch(url)
-        .then(response => response.json())//transformer la réponse en JSON exploitable
-        .then(data => {
+        const response = await fetch(url);
+        const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+        console.log(data); // debug
+
+        // Vérifier si evolution_chain existe
+        if (data.evolution_chain && data.evolution_chain.url) {
+            return data.evolution_chain.url;
+        } else {
+            throw new Error("Pas de champ evolution_chain.url dans ce JSON");
         }
-
-        if (data.name) {
-            return data.name;
-        }
-
-       else throw new Error("No name field in JSON");
-        });
 
     }catch (error) {
-        console.error("Erreur dans searchNameElement:", error);
+        console.error("Erreur dans searchUrlEvolutionChain:", error);
         return null;
     }
 }
 
+async function searchEvolutions(url) {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-function afficherCaracteristiques(img){
+        if (!data.chain) throw new Error("Structure chain absente dans la réponse");
 
-    const speciesUrl = searchNameElement(img.getAttribute("species-url"));
+        const chain = data.chain;
+
+        // ---- Fonction interne récursive ----
+        function extractEvolutionNames(node, list = []) {
+            if (node?.species?.name) {
+                list.push(node.species.name);
+            }
+            if (node?.evolves_to?.length) {
+                for (const evo of node.evolves_to) {
+                    extractEvolutionNames(evo, list);
+                }
+            }
+            return list;
+        }
+
+        // Extraction complète
+        const family = extractEvolutionNames(chain);
+
+        return family
+
+    }catch (error) {
+        console.error("Erreur dans searchEvolutions:", error);
+        return null;
+    }
+}
+
+async function afficherCaracteristiques(img){
+
+    const speciesUrl = await searchUrlEvolutionChain(img.getAttribute("species-url"));
+    const evolutions = await searchEvolutions(speciesUrl);
     const pokeTypes = img.getAttribute("poke-types");
-    const generation = searchNameElement(img.getAttribute("generation"));
+    
 
     const id = img.getAttribute("id");
     let region = 0;
-    if(id>0 && id<101){
-
+    let generation = 0;
+    if(id>0 && id<=151){
+        region = "Kanto";
+        generation = "Gen I";
     }
-    else if(id>100 && id<201){
-
+    else if(id>150 && id<=251){
+        region = "Johto";
+        generation = "Gen II";
+    }
+    else if(id>251 && id<=386){
+        region = "Hoenn";
+        generation = "Gen III";
+    }
+    else if(id>386 && id<=493){
+        region = "Sinnoh";
+        generation = "Gen IV";
+    }
+    else if(id>493 && id<=649){
+        region = "Unys";
+        generation = "Gen V";
+    }
+    else if(id>649 && id<=721){
+        region = "Kalos";
+        generation = "Gen VI";
+    }
+    else if(id>721 && id<=809){
+        region = "Alola";
+        generation = "Gen VII";
+    }
+    else if(id>809 && id<=905){
+        region = "Galar";
+        generation = "Gen VIII";
+    }
+    else if(id>905 && id<=1025){
+        region = "Paldea";
+        generation = "Gen IX";
     }
 
 
     const stats = img.getAttribute("stats");
     console.log(pokeTypes);
     alert(
-        "URL des évolutions : " + speciesUrl +
+        "\n Famille : " + evolutions.join(" → ") +
         "\n Types : " + pokeTypes +
         "\n Génération : " + generation +
         "\n Région : " + region +
@@ -140,7 +217,7 @@ const searchButton = document.querySelector("#btn");
 searchButton.addEventListener("click",search);
 document.addEventListener("DOMContentLoaded", search);
 
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("pokemon-img")) {
         afficherCaracteristiques(e.target);
     }
