@@ -175,69 +175,81 @@ function search(){
             })
         }
 }
-function filtre(){
-if (elements.typeSelect.value!=="Tous les types" || elements.regionSelect.value!=="Toutes les régions" || elements.generationSelect.value!=="Toutes les générations"){   //si un type est sélectionné
-        elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
-        const response = fetch("https://pokeapi.co/api/v2/pokemon?limit=100" )
-        .then(response => response.json())//transformer la réponse en JSON exploitable
-        .then(async data => { //obtenir les données JSON + faut mettre tout dans cette accolade + async pour asynchrone
-            console.log(response)      //pti test qui print la promise
-            console.log(data)          //pti test qui print les données JSON
-            const promises = data.results.map(poke =>       //requete pour chaque poke (pour chopper id img)
-                fetch(poke.url).then(res => res.json()));
+function filtre() {
+    const typeFilter = elements.typeSelect.value;   // ex: "fire" ou ""
+    const regionFilter = elements.regionSelect.value; // ex: "3" ou ""
+    const genFilter = elements.generationSelect.value; // ex: "3" ou ""
 
-            const pokemons = await Promise.all(promises);   //ca attend que la promesse du fetch soit rempli pour ensuite continuer
-            //pokemons.sort((a, b) => a.id - b.id); //trie par id croissant
-            
-            pokemons.forEach(poke => { //pour chaque poke
+    elements.answerArea.innerHTML = '';
 
-                let i = `<div>
+    fetch("https://pokeapi.co/api/v2/pokemon?limit=100")
+        .then(res => res.json())
+        .then(async data => {
+
+            const pokemons = await Promise.all(
+                data.results.map(p => fetch(p.url).then(r => r.json()))
+            );
+
+            pokemons.forEach(poke => {
+                const id = poke.id;
+
+                // ----- TYPE -----
+                const matchType =
+                    typeFilter === "" ||
+                    poke.types.some(t => t.type.name === typeFilter);
+
+                // ----- REGION -----
+                const matchRegion =
+                    regionFilter === "" ||
+                    (
+                        (regionFilter === "1" && id <= 151) ||
+                        (regionFilter === "2" && id > 151 && id <= 251) ||
+                        (regionFilter === "3" && id > 251 && id <= 386) ||
+                        (regionFilter === "4" && id > 386 && id <= 493) ||
+                        (regionFilter === "5" && id > 493 && id <= 649) ||
+                        (regionFilter === "6" && id > 649 && id <= 721) ||
+                        (regionFilter === "7" && id > 721 && id <= 809) ||
+                        (regionFilter === "8" && id > 809 && id <= 905) ||
+                        (regionFilter === "9" && id > 905 && id <= 1025)
+                    );
+
+                // ----- GENERATION -----
+                const matchGen =
+                    genFilter === "" ||
+                    (
+                        (genFilter === "1" && id <= 151) ||
+                        (genFilter === "2" && id > 151 && id <= 251) ||
+                        (genFilter === "3" && id > 251 && id <= 386) ||
+                        (genFilter === "4" && id > 386 && id <= 493) ||
+                        (genFilter === "5" && id > 493 && id <= 649) ||
+                        (genFilter === "6" && id > 649 && id <= 721) ||
+                        (genFilter === "7" && id > 721 && id <= 809) ||
+                        (genFilter === "8" && id > 809 && id <= 905) ||
+                        (genFilter === "9" && id > 905 && id <= 1025)
+                    );
+
+                // ----- COMBINAISON DES 3 -----
+                if (matchType && matchRegion && matchGen) {
+                    elements.answerArea.innerHTML += `
+                        <div>
                             <h3>${poke.name} (#${poke.id})</h3>
-
-                            <img src="${poke.sprites.front_default}"
-                            class="pokemon-img"
-                            id="${poke.id}"
-                            poke-types="${poke.types.map(t => t.type.name).join(', ')}"
-                            
-                            region="${poke.location_area_encounters}"
-                            species-url="${poke.species.url}"
-                            stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
-                            style="cursor:pointer"
+                            <img
+                                src="${poke.sprites.front_default}"
+                                class="pokemon-img"
+                                id="${poke.id}"
+                                poke-types="${poke.types.map(t => t.type.name).join(', ')}"
+                                species-url="${poke.species.url}"
+                                stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                                style="cursor:pointer"
                             />
-
                         </div>
                     `;
-                        if(elements.typeSelect.value!=="Tous les types" && poke.types.some(t => t.type.name === elements.typeSelect.value)){ elements.answerArea.innerHTML += i;}
-
-                        if(elements.regionSelect.value!=="Toutes les régions"){
-                        if(elements.regionSelect.value===1 && poke.id>0 && poke.id<=151){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===2 && poke.id>151 && poke.id<=251){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===3 && poke.id>251 && poke.id<=386){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===4 && poke.id>386 && poke.id<=493){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===5 && poke.id>493 && poke.id<=649){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===6 && poke.id>649 && poke.id<=721){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===7 && poke.id>721 && poke.id<=809){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===8 && poke.id>809 && poke.id<=905){ elements.answerArea.innerHTML += i;}
-                        else if(elements.regionSelect.value===9 && poke.id>905 && poke.id<=1025){ elements.answerArea.innerHTML += i;}
-                        }
-
-                        if(elements.generationSelect.value!=="Toutes les générations"){
-                        if(elements.generationSelect.value==="Gen I" && poke.id>0 && poke.id<=151){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen II" && poke.id>151 && poke.id<=251){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen III" && poke.id>251 && poke.id<=386){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen IV" && poke.id>386 && poke.id<=493){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen V" && poke.id>493 && poke.id<=649){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen VI" && poke.id>649 && poke.id<=721){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen VII" && poke.id>721 && poke.id<=809){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen VIII" && poke.id>809 && poke.id<=905){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Gen IX" && poke.id>905 && poke.id<=1025){ elements.answerArea.innerHTML += i;}
-                        else if(elements.generationSelect.value==="Toutes les générations"){ elements.answerArea.innerHTML += i;}    
-                        }
-                });
-
-        })
-    }
+                }
+            });
+        });
 }
+
+
 
 async function searchUrlEvolutionChain(url) {
     try {
