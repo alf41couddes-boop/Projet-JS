@@ -31,6 +31,7 @@ function search(){
     if(searchMode==1){  //mode pokemon  
         if(elements.searchInput.value!=""){ //si c'est pas vide
             elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
+            let j = 0;
             const response = fetch("https://pokeapi.co/api/v2/pokemon/" + elements.searchInput.value)
             .then(response => {
                 
@@ -46,6 +47,7 @@ function search(){
             })
             .then(data => { //obtenir les données JSON
                 console.log(response)   //pti test qui print la promise
+                j += 1;
                     elements.answerArea.innerHTML = `
                         <div>
                                 <h3>${data.name} (#${data.id})</h3>
@@ -65,10 +67,13 @@ function search(){
                     `;
                         
             })
+            elements.resultArea.innerHTML = `<p class="subtitle"> ${j} Pokémon(s) trouvé(s) </p>`;
+
         
         }
         else if (elements.searchInput.value==""){   //si c vide on affiche tout
             elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
+            let j = 0;
             const response = fetch("https://pokeapi.co/api/v2/pokemon?limit=100")
             .then(response => response.json())//transformer la réponse en JSON exploitable
             .then(async data => { //obtenir les données JSON + faut mettre tout dans cette accolade + async pour asynchrone
@@ -81,7 +86,7 @@ function search(){
                 //pokemons.sort((a, b) => a.id - b.id); //trie par id croissant
                 
                 pokemons.forEach(poke => { //pour chaque poke
-                        
+                        j += 1;
                         elements.answerArea.innerHTML += `
                             <div>
                                 <h3>${poke.name} (#${poke.id})</h3>
@@ -100,6 +105,7 @@ function search(){
                             </div>
                         `;
                     });
+                    elements.resultArea.innerHTML = `<p class="subtitle"> ${j} Pokémon(s) trouvé(s) </p>`;
 
             })
         }
@@ -179,10 +185,11 @@ function filtre() {
     const typeFilter = elements.typeSelect.value;   // ex: "fire" ou ""
     const regionFilter = elements.regionSelect.value; // ex: "3" ou ""
     const genFilter = elements.generationSelect.value; // ex: "3" ou ""
+    let j = 0;
 
     elements.answerArea.innerHTML = '';
 
-    fetch("https://pokeapi.co/api/v2/pokemon?limit=100")
+    fetch("https://pokeapi.co/api/v2/pokemon?limit=1025")
         .then(res => res.json())
         .then(async data => {
 
@@ -230,6 +237,8 @@ function filtre() {
 
                 // ----- COMBINAISON DES 3 -----
                 if (matchType && matchRegion && matchGen) {
+                    j += 1;
+                    elements.resultArea.innerHTML = `<p class="subtitle"> ${j} Pokémon(s) trouvé(s) </p>`;
                     elements.answerArea.innerHTML += `
                         <div>
                             <h3>${poke.name} (#${poke.id})</h3>
@@ -245,7 +254,12 @@ function filtre() {
                         </div>
                     `;
                 }
+                
             });
+
+            if (j==0){
+                    elements.resultArea.innerHTML = `<p class="subtitle"> Aucun Pokémon trouvé ;( </p>`;
+                }
         });
 }
 
