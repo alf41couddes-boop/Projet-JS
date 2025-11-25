@@ -63,6 +63,14 @@ function search(){
                                 style="cursor:pointer"
                                 />
 
+                                <button class="add-inventory"
+                                data-id="${poke.id}"
+                                data-name="${poke.name}"
+                                data-sprite="${poke.sprites.front_default}"
+                                data-types="${poke.types.map(t => t.type.name).join(', ')}"
+                                data-stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                            >+</button>
+
                             </div>
                     `;
                         
@@ -102,6 +110,14 @@ function search(){
                                 style="cursor:pointer"
                                 />
 
+                                <button class="add-inventory"
+                                data-id="${poke.id}"
+                                data-name="${poke.name}"
+                                data-sprite="${poke.sprites.front_default}"
+                                data-types="${poke.types.map(t => t.type.name).join(', ')}"
+                                data-stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                            >+</button>
+
                             </div>
                         `;
                     });
@@ -140,6 +156,14 @@ function search(){
                                 style="cursor:pointer"
                                 />
 
+                                <button class="add-inventory"
+                                data-id="${poke.id}"
+                                data-name="${poke.name}"
+                                data-sprite="${poke.sprites.front_default}"
+                                data-types="${poke.types.map(t => t.type.name).join(', ')}"
+                                data-stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                            >+</button>
+
                             </div>
                     `;
                         
@@ -174,6 +198,13 @@ function search(){
                                 style="cursor:pointer"
                                 />
 
+                                <button class="add-inventory"
+                                data-id="${poke.id}"
+                                data-name="${poke.name}"
+                                data-sprite="${poke.sprites.front_default}"
+                                data-types="${poke.types.map(t => t.type.name).join(', ')}"
+                                data-stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                            >+</button>
                             </div>
                         `;
                     });
@@ -251,6 +282,14 @@ function filtre() {
                                 stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
                                 style="cursor:pointer"
                             />
+
+                            <button class="add-inventory"
+                                data-id="${poke.id}"
+                                data-name="${poke.name}"
+                                data-sprite="${poke.sprites.front_default}"
+                                data-types="${poke.types.map(t => t.type.name).join(', ')}"
+                                data-stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                            >+</button>
                         </div>
                     `;
                 }
@@ -401,6 +440,64 @@ elements.btnMode.addEventListener("click", () => {
     }
 });
 
+//          *********** INVENTAIRE ***********
+
+// Tableau pour stocker l'inventaire (Pokémons et Objets)
+let inventory = [];
+
+// Fonction pour ajouter un Pokémon ou un objet à l'inventaire
+function addToInventory(e) {
+    const isPokemon = searchMode === 1; // Vérifier si on est en mode Pokémon
+    const itemData = isPokemon
+        ? { // Ajouter un Pokémon à l'inventaire
+            id: e.target.getAttribute('data-id'),
+            name: e.target.getAttribute('data-name'),
+            sprite: e.target.getAttribute('data-sprite'),
+            types: e.target.getAttribute('data-types'),
+            stats: e.target.getAttribute('data-stats')
+        }
+        : { // Ajouter un objet à l'inventaire
+            id: e.target.getAttribute('data-id'),
+            name: e.target.getAttribute('data-name'),
+            sprite: e.target.getAttribute('data-sprite'),
+            description: e.target.getAttribute('data-description')
+        };
+
+    // Ajouter l'élément à l'inventaire
+    inventory.push(itemData);
+    console.log("Élément ajouté à l'inventaire:", itemData);
+}
+
+// Fonction pour afficher l'inventaire dans une alerte
+function showInventory() {
+    if (inventory.length === 0) {
+        alert("Votre inventaire est vide.");
+    } else {
+        const inventoryList = inventory.map(item => {
+            if (searchMode === 1) {
+                return `Pokémon: ${item.name} (ID: ${item.id}, Types: ${item.types}, Stats: ${item.stats})`;
+            } else {
+                return `Objet: ${item.name} (ID: ${item.id}, Description: ${item.description})`;
+            }
+        }).join('\n');
+        alert("Votre inventaire:\n\n" + inventoryList);
+    }
+}
+
+// Écouter les clics sur les boutons "Ajouter à l'inventaire"
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("add-inventory")) {
+        addToInventory(e);
+    }
+});
+
+// Écouter le clic sur le bouton "Inventaire" pour afficher l'inventaire
+const btnInventory = document.querySelector("#btn-inventory");
+btnInventory.addEventListener("click", showInventory);
+
+
+
+// ***** FIN INVENTAIRE 
 const searchButton = document.querySelector("#btn");
 searchButton.addEventListener("click",search);
 document.addEventListener("DOMContentLoaded", search);
