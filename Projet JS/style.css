@@ -389,3 +389,41 @@ body{
     outline-offset: 2px;
 
 }
+
+#combat-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.pokemon-side {
+    text-align: center;
+}
+
+.sprite {
+    width: 150px;
+}
+
+.hp-bar {
+    width: 200px;
+    height: 20px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px auto;
+}
+
+.hp-fill {
+    width: 100%;
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.5s;
+}
+
+#log {
+    margin-top: 20px;
+    padding: 10px;
+    background: #eee;
+    min-height: 80px;
+    border-radius: 8px;
+}

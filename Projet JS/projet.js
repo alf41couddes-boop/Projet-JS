@@ -46,6 +46,10 @@ function search(){
                 return response.json();  //transformer la réponse en JSON exploitable
             })
             .then(data => { //obtenir les données JSON
+
+                // Stockage du Pokémon complet en cache
+                localStorage.setItem("pokemon_full_" + data.id, JSON.stringify(data));
+
                 console.log(response)   //pti test qui print la promise
                 j += 1;
                     elements.answerArea.innerHTML = `
@@ -445,7 +449,7 @@ elements.btnMode.addEventListener("click", () => {
 //          *********** INVENTAIRE ***********
 
 // Tableau pour stocker l'inventaire (Pokémons et Objets)
-let inventory = [];
+let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
 
 // Fonction pour ajouter un Pokémon ou un objet à l'inventaire
 function addToInventory(e) {
@@ -467,7 +471,20 @@ function addToInventory(e) {
 
     // Ajouter l'élément à l'inventaire
     inventory.push(itemData);
+
+    // Sauvegarder l'inventaire dans le localStorage
+    localStorage.setItem("inventory", JSON.stringify(inventory));
+
     console.log("Élément ajouté à l'inventaire:", itemData);
+
+    // Cette partie sert à stocker les données de l'inventaire dans  localStorage
+    if (isPokemon) {
+        fetch("https://pokeapi.co/api/v2/pokemon/" + itemData.id)
+            .then(r => r.json())
+            .then(fullData => {
+                localStorage.setItem("pokemon_full_" + itemData.id, JSON.stringify(fullData));
+            });
+    }
 }
 
 // Fonction pour afficher l'inventaire dans une alerte
