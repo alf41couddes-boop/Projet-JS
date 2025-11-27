@@ -171,6 +171,7 @@ function search(){
         
         }
         else if (elements.searchInput.value==""){   //si c vide on affiche tout
+            searchMode = 2;
             elements.answerArea.innerHTML = ''; // Réinitialiser l'affichage
             const response = fetch("https://pokeapi.co/api/v2/item?limit=100")
             .then(response => response.json())//transformer la réponse en JSON exploitable
@@ -199,14 +200,15 @@ function search(){
                                 />
 
                                 <button class="add-inventory"
-                                data-id="${poke.id}"
-                                data-name="${poke.name}"
-                                data-sprite="${poke.sprites.front_default}"
-                                data-types="${poke.types.map(t => t.type.name).join(', ')}"
-                                data-stats="${poke.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', ')}"
+                                data-id="${data.id}"
+                                data-name="${data.name}"
+                                data-sprite="${data.sprites.front_default}"
+                                data-description="${data.effect_entries[0].short_effect}"
+                                description="${data.effect_entries[0].effect}"
+
                             >+</button>
                             </div>
-                        `;
+                        `;      
                     });
 
             })
@@ -476,7 +478,7 @@ function showInventory() {
         const inventoryList = inventory.map(item => {
             if (searchMode === 1) {
                 return `Pokémon: ${item.name} (ID: ${item.id}, Types: ${item.types}, Stats: ${item.stats})`;
-            } else {
+            } else if (searchMode === 2) {
                 return `Objet: ${item.name} (ID: ${item.id}, Description: ${item.description})`;
             }
         }).join('\n');
