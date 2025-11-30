@@ -390,6 +390,7 @@ body{
 
 }
 
+/* ===== Styles spécifiques à la page de combat ===== */
 #combat-container {
     display: flex;
     justify-content: space-around;
@@ -417,6 +418,22 @@ body{
     width: 100%;
     height: 100%;
     background: #4CAF50;
+    transition: width 0.5s;
+}
+
+.xp-bar {
+    width: 150px;
+    height: 20px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px auto;
+}
+
+.xp-fill {
+    width: 100%;
+    height: 100%;
+    background: #4c87af;
     transition: width 0.5s;
 }
 
