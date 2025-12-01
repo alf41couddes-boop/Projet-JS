@@ -1,6 +1,29 @@
+// ---------------------------------------------
+//  Table des types Pokémon (efficacités)
+// ---------------------------------------------
+const typeChart = {
+    normal: { strong: [], weak: ['rock', 'steel'], immune: ['ghost'] },
+    fire: { strong: ['grass', 'ice', 'bug', 'steel'], weak: ['fire', 'water', 'rock', 'dragon'], immune: [] },
+    water: { strong: ['fire', 'ground', 'rock'], weak: ['water', 'grass', 'dragon'], immune: [] },
+    electric: { strong: ['water', 'flying'], weak: ['electric', 'grass', 'dragon'], immune: ['ground'] },
+    grass: { strong: ['water', 'ground', 'rock'], weak: ['fire', 'grass', 'poison', 'flying', 'bug', 'dragon', 'steel'], immune: [] },
+    ice: { strong: ['grass', 'ground', 'flying', 'dragon'], weak: ['fire', 'water', 'ice', 'steel'], immune: [] },
+    fighting: { strong: ['normal', 'ice', 'rock', 'dark', 'steel'], weak: ['poison', 'flying', 'psychic', 'bug', 'fairy'], immune: ['ghost'] },
+    poison: { strong: ['grass', 'fairy'], weak: ['poison', 'ground', 'rock', 'ghost'], immune: ['steel'] },
+    ground: { strong: ['fire', 'electric', 'poison', 'rock', 'steel'], weak: ['grass', 'bug'], immune: ['flying'] },
+    flying: { strong: ['grass', 'fighting', 'bug'], weak: ['electric', 'rock', 'steel'], immune: [] },
+    psychic: { strong: ['fighting', 'poison'], weak: ['psychic', 'steel'], immune: ['dark'] },
+    bug: { strong: ['grass', 'psychic', 'dark'], weak: ['fire', 'fighting', 'poison', 'flying', 'ghost', 'steel', 'fairy'], immune: [] },
+    rock: { strong: ['fire', 'ice', 'flying', 'bug'], weak: ['fighting', 'ground', 'steel'], immune: [] },
+    ghost: { strong: ['psychic', 'ghost'], weak: ['dark'], immune: ['normal'] },
+    dragon: { strong: ['dragon'], weak: ['steel'], immune: ['fairy'] },
+    dark: { strong: ['psychic', 'ghost'], weak: ['fighting', 'dark', 'fairy'], immune: [] },
+    steel: { strong: ['ice', 'rock', 'fairy'], weak: ['fire', 'water', 'electric', 'steel'], immune: [] },
+    fairy: { strong: ['fighting', 'dragon', 'dark'], weak: ['fire', 'poison', 'steel'], immune: [] }
+};
 
 // ---------------------------------------------
-//  Récupération d’un Pokémon complet depuis le cache
+//  Récupération d'un Pokémon complet depuis le cache
 // ---------------------------------------------
 function getStoredPokemon(id) {
     const data = localStorage.getItem("pokemon_full_" + id);
@@ -219,6 +242,11 @@ function updateHPBars() {
 
     document.getElementById("enemy-hp").style.width =
         (enemyHP / enemyMaxHP * 100) + "%";
+
+    const playerHpText = document.getElementById("player-hp-text");
+    const enemyHpText = document.getElementById("enemy-hp-text");
+    if (playerHpText) playerHpText.textContent = `${Math.max(0, Math.floor(playerHP))}/${Math.max(0, Math.floor(playerMaxHP))}`;
+    if (enemyHpText) enemyHpText.textContent = `${Math.max(0, Math.floor(enemyHP))}/${Math.max(0, Math.floor(enemyMaxHP))}`;
 }
 
 // Après chaque attaque, met à jour les PV du joueur
@@ -240,14 +268,28 @@ function log(msg) {
 //  Calcul des dégâts
 // ---------------------------------------------
 function calculateDamage(attacker, defender, move) {
-
+    const moveType = move.type.name;
     const power = move.power || 40;
-
+    const defenderTypes = defender.types.map(t => t.type.name);
     const atk = attacker.stats.find(s => s.stat.name === "attack").base_stat;
     const def = defender.stats.find(s => s.stat.name === "defense").base_stat;
 
-    const dmg = Math.max(5, Math.floor((atk / def) * power / 5));
-
+    let dmg = Math.floor((atk / def) * power / 5);
+    if (attacker.types==moveType) {
+        dmg = Math.floor(dmg * 1.5); // STAB
+    }
+    defenderTypes.forEach(defType => {
+        if (typeChart[moveType].strong.includes(defType)) {
+            dmg *= 2; // Super efficace
+        }
+        if (typeChart[moveType].weak.includes(defType)) {
+            dmg *= 0.5; // Peu efficace
+        }
+        if (typeChart[moveType].immune.includes(defType)) {
+            dmg = 0; // Immunisé
+        }
+    });
+    log("damage : " + dmg);
     return dmg;
 }
 
@@ -276,12 +318,12 @@ async function useMove(attacker, defender, move, attackerIsPlayer) {
 
     // Défaite / victoire
     if (enemyHP === 0) {
-        log("🎉 Victoire !");
+        log("GG Victoire !");
         endCombat();
         return;
     }
     if (playerHP === 0) {
-        log("💀 Défaite...");
+        log(" LOOSER Défaite...");
         endCombat();
         return;
     }
@@ -316,6 +358,7 @@ function enemyAttack() {
 function endCombat() {
     document.getElementById("actions").innerHTML = "";
     log("<strong>Combat terminé.</strong>");
+
 }
 
 
