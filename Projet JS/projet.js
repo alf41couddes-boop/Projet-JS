@@ -514,7 +514,12 @@ document.addEventListener("click", (e) => {
 const btnInventory = document.querySelector("#btn-inventory");
 btnInventory.addEventListener("click", showInventory);
 
-
+function emptyInventory() {
+    inventory = [];
+    localStorage.removeItem("inventory");
+    localStorage.clear(); // Supprimer aussi les données complètes des Pokémons
+    alert("Inventaire vidé.");
+}
 
 // ***** FIN INVENTAIRE 
 const searchButton = document.querySelector("#btn");

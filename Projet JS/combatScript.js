@@ -30,26 +30,21 @@ function getStoredPokemon(id) {
     return data ? JSON.parse(data) : null;
 }
 
-if (!localStorage.getItem("selectedPokemonId")) {
-    localStorage.setItem("selectedPokemonId", "3"); // Venusaur par défaut
+
+
+// Pokémon du joueur (COMPLET, aucune requête API)
+let selectedId = localStorage.getItem("selectedPokemonId");
+let player = null;
+
+// Si aucun Pokémon sélectionné 
+if (selectedId) {
+    player = getStoredPokemon(selectedId);
+
 }
-
-
-// Pokémon choisi par le joueur
-const selectedId = localStorage.getItem("selectedPokemonId");
 
 // Sécurité
 if (!selectedId) {
-    alert("Aucun Pokémon sélectionné pour le combat !");
-    throw new Error("selectedPokemonId n'existe pas dans localStorage.");
-}
-
-// Pokémon du joueur (COMPLET, aucune requête API)
-const player = getStoredPokemon(selectedId);
-
-if (!player) {
-    alert("Les données complètes de ce Pokémon ne sont pas en cache !");
-    throw new Error("pokemon_full_" + selectedId + " non trouvé.");
+    alert("Aucun Pokémon sélectionné ! Choisis-en un dans l’inventaire avant de combattre.");
 }
 
 // ---------------------------------------------
@@ -126,6 +121,10 @@ function selectPokemonForCombat(pokemonId) {
         return;
     }
 
+    // Mettre à jour l'id et player
+    selectedId = pokemonId.toString(); 
+    player = selectedPokemon;
+
     // Mettre à jour l'affichage du Pokémon choisi
     document.getElementById("player-name").textContent = selectedPokemon.name;
     document.getElementById("player-sprite").src = selectedPokemon.sprites.front_default;
@@ -199,7 +198,7 @@ let playerTurn = true;
 // ---------------------------------------------
 function initializeXPBar() {
         if(localStorage.getItem(selectedId + "_xp")){
-            playerXP = parseInt(localStorage.getItem(selectedId + "_xp"));
+            playerXP = parseInt(localStorage.getItem(selectedId + "_xp")) || 0;
             document.getElementById("player-xp").style.width = (playerXP / playerMaxXP * 100) + "%" ;
         }
         else {
@@ -208,7 +207,7 @@ function initializeXPBar() {
             document.getElementById("player-xp").style.width = 0;
         }
     }
-initializeXPBar();
+if (selectedId) initializeXPBar();
 // ---------------------------------------------
 //  Mise à jour de la barre d'XP
 // ---------------------------------------------
@@ -216,10 +215,8 @@ function updateXPBars() {
 
     localStorage.setItem(selectedId + "_xp", playerXP);
 
-    if (enemyHP !== 0) {
-        playerXP = parseInt(localStorage.getItem(selectedId + "_xp"));
+    playerXP = parseInt(localStorage.getItem(selectedId + "_xp")) || 0;
 
-    }
     if (enemyHP === 0) {
         playerXP += 20; // Gagne 20 XP par victoire
 
@@ -420,7 +417,9 @@ async function startCombat() {
 }
 
 
-
-// ---------------------------------------------
-startCombat();
+if (localStorage.getItem("selectedPokemonId")) {
+    startCombat();
+} else {
+    console.warn("Aucun Pokémon sélectionné, combat non lancé.");
+}
 
