@@ -472,6 +472,10 @@ function addToInventory(e) {
     // Ajouter l'élément à l'inventaire
     inventory.push(itemData);
 
+    if (isPokemon) {
+    localStorage.setItem("selectedPokemonId", itemData.id);
+    }
+
     // Sauvegarder l'inventaire dans le localStorage
     localStorage.setItem("inventory", JSON.stringify(inventory));
 
@@ -520,6 +524,10 @@ function emptyInventory() {
     localStorage.clear(); // Supprimer aussi les données complètes des Pokémons
     alert("Inventaire vidé.");
 }
+
+// Écouter le clic sur le bouton "Vider l'Inventaire" pour vider l'inventaire
+const btnEmptyInventory = document.querySelector("#btn-empty-inventory");
+btnEmptyInventory.addEventListener("click", emptyInventory);
 
 // ***** FIN INVENTAIRE 
 const searchButton = document.querySelector("#btn");

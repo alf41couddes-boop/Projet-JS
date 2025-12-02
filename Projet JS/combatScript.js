@@ -33,6 +33,7 @@ function getStoredPokemon(id) {
 
 
 // Pokémon du joueur (COMPLET, aucune requête API)
+
 let selectedId = localStorage.getItem("selectedPokemonId");
 let player = null;
 
@@ -40,11 +41,6 @@ let player = null;
 if (selectedId) {
     player = getStoredPokemon(selectedId);
 
-}
-
-// Sécurité
-if (!selectedId) {
-    alert("Aucun Pokémon sélectionné ! Choisis-en un dans l’inventaire avant de combattre.");
 }
 
 // ---------------------------------------------
@@ -375,6 +371,11 @@ async function startCombat() {
     if (!player) {
         alert("Aucun Pokémon sélectionné pour le combat !");
         return;
+    }
+
+    // Sécurité
+    if (!selectedId) {
+        alert("Aucun Pokémon sélectionné ! Choisis-en un dans l’inventaire avant de combattre." + selectedId);
     }
 
     // Initialiser les PV, attaques, et autres données du combat comme avant
