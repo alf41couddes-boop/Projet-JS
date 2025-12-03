@@ -424,6 +424,10 @@ body{
     background: #4CAF50;
     transition: width 0.5s;
 }
+.hp-progress {
+    height: 100%;
+    transition: width 0.4s;
+}
 
 .xp-bar {
     width: 150px;

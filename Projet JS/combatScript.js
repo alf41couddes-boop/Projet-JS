@@ -85,7 +85,12 @@ function displayInventory() {
                 localStorage.setItem(i + "_hp", pokemonCurrentHP); // Sauvegarder initialement dans le localStorage
             }
             // Calculer le pourcentage de PV actuel
-            const hpPercentage = (pokemonCurrentHP / pokemonMaxHP) * 100;
+            const hpPercentage = (localStorage.getItem(i + "_hp") / pokemonMaxHP) * 100;
+
+
+            console.log("Pourcentage de PV du Pokémon ID " + i + ": " + hpPercentage + "%");
+            hpProgress.style.backgroundColor = hpPercentage > 50 ? 'green' : (hpPercentage > 20 ? 'orange' : 'red');
+
 
             hpProgress.style.width = `${hpPercentage}%`; // Ajuster la largeur en fonction des PV actuels
             hpBarDiv.appendChild(hpProgress);
@@ -267,19 +272,23 @@ function calculateDamage(attacker, defender, move) {
     const atk = attacker.stats.find(s => s.stat.name === "attack").base_stat;
     const def = defender.stats.find(s => s.stat.name === "defense").base_stat;
 
-    let dmg = Math.floor((atk / def) * power / 5);
+    let dmg = Math.floor(power*atk/def);
     if (attacker.types==moveType) {
         dmg = Math.floor(dmg * 1.5); // STAB
+        log("Bonus STAB !");
     }
     defenderTypes.forEach(defType => {
         if (typeChart[moveType].strong.includes(defType)) {
             dmg *= 2; // Super efficace
+            log("C'est super efficace !");
         }
         if (typeChart[moveType].weak.includes(defType)) {
             dmg *= 0.5; // Peu efficace
+            log("Ce n'est pas très efficace...");
         }
         if (typeChart[moveType].immune.includes(defType)) {
             dmg = 0; // Immunisé
+            log("Ça n'a aucun effet...");
         }
     });
     log("damage : " + dmg);
@@ -373,8 +382,27 @@ function endCombat() {
     document.getElementById("actions").innerHTML = "";
     log("<strong>Combat terminé.</strong>");
 
-}
+    const combatContainer = document.getElementById("h1");
 
+    // Bouton recommencer le combat
+    
+    const btnStartAgain = document.createElement("button");
+        btnStartAgain.style = "btn-mode";
+        btnStartAgain.textContent = "Recommencer le combat";
+        btnStartAgain.onclick = restartCombat;
+    
+    combatContainer.appendChild(btnStartAgain); 
+    }
+
+// ---------------------------------------------
+//  Redémarrer le combat
+// ---------------------------------------------
+function restartCombat() {
+    log(" ");
+    localStorage.removeItem(selectedId + "_hp");
+    startCombat();
+    
+}
 
 // ---------------------------------------------
 //  Initialisation du combat
@@ -434,7 +462,8 @@ async function startCombat() {
 
         actionsDiv.appendChild(btn);
     }
-    /////si dessous les utilisations d'objets
+    /*
+    //ci dessous les utilisations d'objets
     const inv = JSON.parse(localStorage.getItem('inventory'));
     const potion = inv.find(item => item.isPokemon == false && item.name == 'potion');
     const btnPotion = document.createElement('button');
@@ -446,9 +475,7 @@ async function startCombat() {
     };
 
     actionsDiv.appendChild(btnPotion);
-
-
-        
+    */
 
 
     log("⚔️ Le combat commence !");
@@ -461,4 +488,3 @@ if (localStorage.getItem("selectedPokemonId")) {
 } else {
     console.warn("Aucun Pokémon sélectionné, combat non lancé.");
 }
-
