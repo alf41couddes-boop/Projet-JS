@@ -217,15 +217,8 @@ function updateXPBars() {
     localStorage.setItem(selectedId + "_xp", playerXP);
 
     playerXP = parseInt(localStorage.getItem(selectedId + "_xp")) || 0;
-
-    if (enemyHP === 0) {
-        playerXP += 20; // Gagne 20 XP par victoire
-
-        // Mettre à jour l'XP du Pokémon dans localStorage
-        localStorage.setItem(selectedId + "_xp", playerXP);
-    }
         // Mettre à jour la barre d'XP
-        document.getElementById("player-xp").style.width = (playerXP / playerMaxXP) * 100 + "%";
+    document.getElementById("player-xp").style.width = (playerXP / playerMaxXP) * 100 + "%";
     
 }
 
@@ -322,6 +315,8 @@ async function usePotion(potion, inv) {
 // ---------------------------------------------
 async function useMove(attacker, defender, move, attackerIsPlayer) {
 
+    const selectedId = localStorage.getItem("selectedPokemonId");
+
     log(`${attacker.name} utilise ${move.name} !`);
 
     const damage = calculateDamage(attacker, defender, move);
@@ -341,11 +336,15 @@ async function useMove(attacker, defender, move, attackerIsPlayer) {
 
     // Défaite / victoire
     if (enemyHP === 0) {
+        playerXP += 20;
+        localStorage.setItem(selectedId + "_xp", playerXP);// si victoire, ajouter 20 XP
+        updateXPBars();
         log("GG Victoire !");
         endCombat();
         return;
     }
     if (playerHP === 0) {
+        localStorage.setItem(selectedId + "_hp"); // si défaite, pokémon a 0 HP
         log(" LOOSER Défaite...");
         endCombat();
         return;
@@ -382,24 +381,37 @@ function endCombat() {
     document.getElementById("actions").innerHTML = "";
     log("<strong>Combat terminé.</strong>");
 
-    const combatContainer = document.getElementById("h1");
+    const combatContainer = document.getElementById("combat-controls");
 
-    // Bouton recommencer le combat
-    
+    // Vérifier si un bouton existe déjà
+    let btnStartAgain = document.getElementById("restart-btn");
+
+    if (!btnStartAgain) {
     const btnStartAgain = document.createElement("button");
-        btnStartAgain.style = "btn-mode";
+        btnStartAgain.id = "restart-btn"
+        btnStartAgain.classList.add("btn-mode");
+        btnStartAgain.style.textAlign = "center";
         btnStartAgain.textContent = "Recommencer le combat";
         btnStartAgain.onclick = restartCombat;
     
     combatContainer.appendChild(btnStartAgain); 
     }
+}
 
 // ---------------------------------------------
 //  Redémarrer le combat
 // ---------------------------------------------
+
+let restartedCombat = false;
+
 function restartCombat() {
-    log(" ");
-    localStorage.removeItem(selectedId + "_hp");
+
+    restartedCombat = true; // cette ligne permet de signaler qu'on a recommencé le combat au moins une fois
+
+    document.getElementById("log").innerHTML = ""; // vider le log
+    localStorage.removeItem(selectedId + "_hp");    // reset HP stockés
+    const btn = document.getElementById("restart-btn");
+    if (btn) btn.remove();
     startCombat();
     
 }
@@ -408,6 +420,9 @@ function restartCombat() {
 //  Initialisation du combat
 // ---------------------------------------------
 async function startCombat() {
+
+    playerTurn = true; // Le joueur commence toujours pour éviter le blocage après redemarrage
+
     displayInventory(); // Afficher l'inventaire au début du combat
 
     // Récupération de l’ennemi
