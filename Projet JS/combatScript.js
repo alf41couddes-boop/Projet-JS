@@ -286,6 +286,27 @@ function calculateDamage(attacker, defender, move) {
     return dmg;
 }
 
+// utiliser un potion
+async function usePotion(potion, inv) {
+    if (Number(potion.quantity) > 0) {
+        if (playerTurn) { // si tour du joueur
+            playerHP += 20; //potion restaure 20 PV
+                if (playerHP > playerMaxHP) playerHP = playerMaxHP; //pas dépasser le PVmax
+                potion.quantity -= 1;
+                localStorage.setItem('inventory', JSON.stringify(inv));
+                updateHPBars();
+                log("Potion utilisée !");
+            }
+            
+        playerTurn = !playerTurn; //changer de tour
+        if (!playerTurn) {
+            setTimeout(enemyAttack, 1200); // petite attente
+        }
+    }
+    else {
+        log("Pas de potions restantes :(");
+    };
+}
 
 // ---------------------------------------------
 //  Exécuter une attaque
@@ -413,9 +434,26 @@ async function startCombat() {
 
         actionsDiv.appendChild(btn);
     }
+    /////si dessous les utilisations d'objets
+    const inv = JSON.parse(localStorage.getItem('inventory'));
+    const potion = inv.find(item => item.isPokemon == false && item.name == 'potion');
+    const btnPotion = document.createElement('button');
+    btnPotion.textContent = `Utiliser Potion (${potion.quantity})`;
+    btnPotion.onclick = () => {
+        if (playerTurn) { 
+            usePotion(potion, inv);
+        }
+    };
+
+    actionsDiv.appendChild(btnPotion);
+
+
+        
+
 
     log("⚔️ Le combat commence !");
 }
+
 
 
 if (localStorage.getItem("selectedPokemonId")) {

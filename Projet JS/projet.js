@@ -460,14 +460,27 @@ function addToInventory(e) {
             name: e.target.getAttribute('data-name'),
             sprite: e.target.getAttribute('data-sprite'),
             types: e.target.getAttribute('data-types'),
-            stats: e.target.getAttribute('data-stats')
+            stats: e.target.getAttribute('data-stats'),
+            isPokemon: true
         }
         : { // Ajouter un objet à l'inventaire
             id: e.target.getAttribute('data-id'),
             name: e.target.getAttribute('data-name'),
             sprite: e.target.getAttribute('data-sprite'),
-            description: e.target.getAttribute('data-description')
+            description: e.target.getAttribute('data-description'),
+            isPokemon: false,
+            quantity : 1
         };
+        // En gros la j'ai rajouté une quantité et si y'en a plusieurs ça augmente la quantité plutot que d'ajouter plusieurs fois le meme objet
+        if (!isPokemon) {
+            const existing = inventory.find(item => item.id == itemData.id && isPokemon==false); //traverse l'inventaire pour trouver un objet avec le meme id
+            //donc existing == l'objet déja dans l'inventaire
+        if (existing) {
+            existing.quantity = (Number(existing.quantity) || 0) + 1; //number converti en nombre (avant en string)
+            localStorage.setItem("inventory", JSON.stringify(inventory)); //setItem(nom, valeur) retransforme en json et met dans le storage
+            return;
+        }
+}
 
     // Ajouter l'élément à l'inventaire
     inventory.push(itemData);
