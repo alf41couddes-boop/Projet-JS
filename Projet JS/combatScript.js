@@ -143,6 +143,11 @@ function selectPokemonForCombat(pokemonId) {
     console.log("XP du Pokémon sélectionné : " + playerXP);
     console.log("id du Pokémon sélectionné : " + selectedId);
 
+    // Charger le niveau
+    playerLevel = parseInt(localStorage.getItem(pokemonId + "_level")) || 1;
+    document.getElementById("player-level").textContent = "Lv " + playerLevel;
+
+
     document.getElementById("player-xp").style.width = (playerXP / playerMaxXP * 100) + "%" ;
 
     // Mettre à jour les attaques
@@ -167,7 +172,7 @@ async function updateActions(selectedPokemon) {
         const btn = document.createElement("button");
         btn.textContent = moveInfo.name + " (" + (moveInfo.power || 0) + ")";
         btn.onclick = () => {
-            if (playerTurn && localStorage.getItem(selectedPokemon + "_hp") > 0) {
+            if (playerTurn && localStorage.getItem(selectedPokemon.id + "_hp") > 0) {
                 useMove(selectedPokemon, enemy, moveInfo, true);
             }
         };
@@ -182,13 +187,14 @@ async function updateActions(selectedPokemon) {
 //  Générer un Pokémon adverse (PokéAPI)
 // ---------------------------------------------
 async function getRandomEnemy() {
-    const randomId = Math.floor(Math.random() * 151) + 1;
+    const randomId = Math.floor(Math.random() * 1036) + 1;
     const res = await fetch("https://pokeapi.co/api/v2/pokemon/" + randomId);
     return await res.json();
 }
 
-
-// Données du combat
+// ---------------------------------------------
+//  Données générales du combat
+// ---------------------------------------------
 let enemy;
 
 let playerHP, enemyHP;
@@ -199,31 +205,54 @@ let playerMaxHP, enemyMaxHP;
 
 let playerTurn = true;
 
+let playerLevel = 1;
+
 // ---------------------------------------------
 //  Récupération de la barre d'XP
 // ---------------------------------------------
 function initializeXPBar() {
         if(localStorage.getItem(selectedId + "_xp")){
             playerXP = parseInt(localStorage.getItem(selectedId + "_xp")) || 0;
-            document.getElementById("player-xp").style.width = (playerXP / playerMaxXP * 100) + "%" ;
         }
         else {
             playerXP = 0;
             localStorage.setItem(selectedId + "_xp", playerXP);
-            document.getElementById("player-xp").style.width = 0;
+           }
+        document.getElementById("player-xp").style.width = (playerXP / playerMaxXP * 100) + "%" ;
+
+                // Charger le niveau
+        if (localStorage.getItem(selectedId + "_level")) {
+            playerLevel = parseInt(localStorage.getItem(selectedId + "_level"));
+        } else {
+            playerLevel = 1;
+            localStorage.setItem(selectedId + "_level", playerLevel);
         }
-    }
+        document.getElementById("player-level").textContent = "Lv " + playerLevel; 
+}
+
 if (selectedId) initializeXPBar();
 // ---------------------------------------------
 //  Mise à jour de la barre d'XP
 // ---------------------------------------------
 function updateXPBars() {
 
+    playerXP = parseInt(localStorage.getItem(selectedId + "_xp")) || 0;
     localStorage.setItem(selectedId + "_xp", playerXP);
 
-    playerXP = parseInt(localStorage.getItem(selectedId + "_xp")) || 0;
-        // Mettre à jour la barre d'XP
+    // Vérifier le LEVEL UP
+    if (playerXP >= playerMaxXP) {
+        playerXP -= playerMaxXP;     // reste d'XP (ex : 120 → 20)
+        playerLevel++;               // niveau +1
+        localStorage.setItem(selectedId + "_level", playerLevel);
+
+        log(`Damn Thibault, ton pokemon passe au niveau ${playerLevel} !`);
+
+        // Sauvegarder le nouvel XP restant
+        localStorage.setItem(selectedId + "_xp", playerXP);
+    }
+        // Mise à jour visuelle
     document.getElementById("player-xp").style.width = (playerXP / playerMaxXP) * 100 + "%";
+    document.getElementById("player-level").textContent = "Lv " + playerLevel;
     
 }
 
@@ -440,7 +469,7 @@ function endCombat() {
         btnStartAgain.id = "restart-btn"
         btnStartAgain.classList.add("btn-mode");
         btnStartAgain.style.textAlign = "center";
-        btnStartAgain.textContent = "Recommencer le combat";
+        btnStartAgain.textContent = "Nouveau combat";
         btnStartAgain.onclick = restartCombat;
     
     combatContainer.appendChild(btnStartAgain); 
@@ -511,6 +540,7 @@ async function startCombat() {
     // Affichage des sprites + noms
     document.getElementById("player-name").textContent = player.name;
     document.getElementById("player-sprite").src = player.sprites.front_default;
+    document.getElementById("player-level").textContent = "Lv " + playerLevel;
 
     document.getElementById("enemy-name").textContent = enemy.name;
     document.getElementById("enemy-sprite").src = enemy.sprites.front_default;
