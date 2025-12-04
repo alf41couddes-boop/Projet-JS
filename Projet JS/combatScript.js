@@ -169,6 +169,7 @@ async function updateActions(selectedPokemon) {
         };
 
         actionsDiv.appendChild(btn);
+        
     }
 }
 
@@ -265,7 +266,7 @@ function calculateDamage(attacker, defender, move) {
     const atk = attacker.stats.find(s => s.stat.name === "attack").base_stat;
     const def = defender.stats.find(s => s.stat.name === "defense").base_stat;
 
-    let dmg = Math.floor(power*atk/def);
+    let dmg = Math.floor(power);
     if (attacker.types==moveType) {
         dmg = Math.floor(dmg * 1.5); // STAB
         log("Bonus STAB !");
@@ -310,6 +311,46 @@ async function usePotion(potion, inv) {
     };
 }
 
+// utiliser un ball
+async function useBall(ball, inv, enemy) { //mélange de usePotion et addToInventory
+    if (Number(ball.quantity) > 0) {
+        if (playerTurn) {
+            let catchChance = 50; //on prend 50% de catchrate
+            if (catchChance <= 50) {
+                   // Ajouter un Pokémon à l'inventaire
+                const caught = { //code alegrement repris du addToInventory
+                    id: enemy.id,
+                    name: enemy.name,
+                    sprite: enemy.sprites.front_default,
+                    types: enemy.types : [],
+                    stats: enemy.stats : [],
+                    isPokemon: true
+                };
+                inv.push(caught);
+                ball.quantity -= 1;
+                localStorage.setItem('inventory', JSON.stringify(inv));
+                log("Pokémon capturé !");
+                endCombat();
+            }
+            else {
+                log("echec de la capture...");
+                playerTurn = !playerTurn; //changer de tour
+                if (!playerTurn) {
+                    setTimeout(enemyAttack, 1200); // petite attente
+                }
+            }
+        }
+    }else {
+        log("Pas de pokeball restante :(");
+    }
+} 
+
+
+
+
+
+
+
 // ---------------------------------------------
 //  Exécuter une attaque
 // ---------------------------------------------
@@ -335,7 +376,7 @@ async function useMove(attacker, defender, move, attackerIsPlayer) {
 
 
     // Défaite / victoire
-    if (enemyHP === 0) {
+    if (enemyHP <= 0) {
         playerXP += 20;
         localStorage.setItem(selectedId + "_xp", playerXP);// si victoire, ajouter 20 XP
         updateXPBars();
@@ -343,7 +384,7 @@ async function useMove(attacker, defender, move, attackerIsPlayer) {
         endCombat();
         return;
     }
-    if (playerHP === 0) {
+    if (playerHP <= 0) {
         localStorage.setItem(selectedId + "_hp"); // si défaite, pokémon a 0 HP
         log(" LOOSER Défaite...");
         endCombat();
@@ -379,6 +420,7 @@ function enemyAttack() {
 // ---------------------------------------------
 function endCombat() {
     document.getElementById("actions").innerHTML = "";
+    document.getElementById("itemUseBar").innerHTML = "";
     log("<strong>Combat terminé.</strong>");
 
     const combatContainer = document.getElementById("combat-controls");
@@ -477,21 +519,37 @@ async function startCombat() {
 
         actionsDiv.appendChild(btn);
     }
-    /*
+    
     //ci dessous les utilisations d'objets
+    const itemDiv = document.getElementById("itemUseBar");
     const inv = JSON.parse(localStorage.getItem('inventory'));
+    //potion
+    
     const potion = inv.find(item => item.isPokemon == false && item.name == 'potion');
     const btnPotion = document.createElement('button');
     btnPotion.textContent = `Utiliser Potion (${potion.quantity})`;
     btnPotion.onclick = () => {
         if (playerTurn) { 
             usePotion(potion, inv);
+            btnPotion.textContent = `Utiliser Potion (${potion.quantity})`;
         }
     };
 
-    actionsDiv.appendChild(btnPotion);
-    */
+    itemDiv.appendChild(btnPotion);
 
+    //ball
+    const ball = inv.find(item => item.isPokemon == false && item.name == 'poke-ball');
+    const btnBall = document.createElement('button');
+    btnBall.textContent = `Utiliser pokeball (${ball.quantity})`;
+    btnBall.onclick = () => {
+        if (playerTurn) { 
+            useBall(ball, inv, enemy);
+            btnBall.textContent = `Utiliser pokeball (${ball.quantity})`;
+        }
+    };
+
+    itemDiv.appendChild(btnBall);
+    
 
     log("⚔️ Le combat commence !");
 }

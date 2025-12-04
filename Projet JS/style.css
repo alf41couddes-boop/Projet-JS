@@ -452,3 +452,64 @@ body{
     min-height: 80px;
     border-radius: 8px;
 }
+
+/* ===== Buttons for combat actions and items ===== */
+#actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    padding:12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(248,250,255,0.6));
+    border-radius: 12px;
+    border: 1px solid rgba(10,20,50,0.04);
+    box-shadow: 0 6px 18px rgba(20,40,90,0.04);
+    margin-top:12px;
+}
+
+#actions button{
+    padding:12px 18px;
+    border-radius:10px;
+    border:1px solid rgba(43,123,233,0.12);
+    background: linear-gradient(180deg,#ffffff,#eef6ff);
+    color:var(--accent-blue);
+    font-weight:800;
+    cursor:pointer;
+    box-shadow: 0 8px 18px rgba(43,123,233,0.08);
+    transition: transform .14s ease, box-shadow .14s ease, opacity .12s ease;
+}
+
+#actions button:hover{ transform:translateY(-4px); box-shadow:0 14px 30px rgba(43,123,233,0.12) }
+
+#actions button:active{ transform:translateY(-1px) }
+
+/* Items bar separate from attacks */
+#itemUseBar{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+    margin-top:10px;
+}
+
+#itemUseBar button{
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.06);
+    background: linear-gradient(180deg,#fffef8,#fff6d9);
+    color:#6b4a00;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(0,0,0,0.06);
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+#itemUseBar button:hover{ transform:translateY(-3px); box-shadow:0 10px 22px rgba(0,0,0,0.08) }
+
+/* small responsive tweaks */
+@media (max-width:600px){
+    #actions{ padding:8px; gap:8px }
+    #actions button{ padding:10px 12px; font-size:14px }
+    #itemUseBar button{ padding:8px 10px; font-size:13px }
+}

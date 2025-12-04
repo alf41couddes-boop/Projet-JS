@@ -455,7 +455,7 @@ let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
 function addToInventory(e) {
     const isPokemon = searchMode === 1; // Vérifier si on est en mode Pokémon
     const itemData = isPokemon
-        ? { // Ajouter un Pokémon à l'inventaire
+        ? { // Ajouter un Pokémon à l'inventaire //if
             id: e.target.getAttribute('data-id'),
             name: e.target.getAttribute('data-name'),
             sprite: e.target.getAttribute('data-sprite'),
@@ -463,7 +463,7 @@ function addToInventory(e) {
             stats: e.target.getAttribute('data-stats'),
             isPokemon: true
         }
-        : { // Ajouter un objet à l'inventaire
+        : { // Ajouter un objet à l'inventaire //else
             id: e.target.getAttribute('data-id'),
             name: e.target.getAttribute('data-name'),
             sprite: e.target.getAttribute('data-sprite'),
@@ -537,6 +537,7 @@ function emptyInventory() {
     localStorage.clear(); // Supprimer aussi les données complètes des Pokémons
     alert("Inventaire vidé.");
 }
+
 
 // Écouter le clic sur le bouton "Vider l'Inventaire" pour vider l'inventaire
 const btnEmptyInventory = document.querySelector("#btn-empty-inventory");
