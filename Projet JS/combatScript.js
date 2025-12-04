@@ -132,7 +132,11 @@ function selectPokemonForCombat(pokemonId) {
 
     // Mettre à jour les PV du joueur sans redémarrer le combat
     playerMaxHP = selectedPokemon.stats.find(s => s.stat.name === "hp").base_stat;
-    playerHP = playerMaxHP;
+
+    // Charger les HP sauvegardés du joueur
+    let savedHP = localStorage.getItem(pokemonId + "_hp");
+    playerHP = savedHP ? parseInt(savedHP) : playerMaxHP;
+
     playerXP = parseInt(localStorage.getItem(pokemonId + "_xp"));
 
     // AFfichage des informations dans la console pour le débogage
@@ -163,7 +167,7 @@ async function updateActions(selectedPokemon) {
         const btn = document.createElement("button");
         btn.textContent = moveInfo.name + " (" + (moveInfo.power || 0) + ")";
         btn.onclick = () => {
-            if (playerTurn) {
+            if (playerTurn && localStorage.getItem(selectedPokemon + "_hp") > 0) {
                 useMove(selectedPokemon, enemy, moveInfo, true);
             }
         };
@@ -322,8 +326,8 @@ async function useBall(ball, inv, enemy) { //mélange de usePotion et addToInven
                     id: enemy.id,
                     name: enemy.name,
                     sprite: enemy.sprites.front_default,
-                    types: enemy.types : [],
-                    stats: enemy.stats : [],
+                    types: enemy.types,
+                    stats: enemy.stats,
                     isPokemon: true
                 };
                 inv.push(caught);
@@ -380,12 +384,15 @@ async function useMove(attacker, defender, move, attackerIsPlayer) {
         playerXP += 20;
         localStorage.setItem(selectedId + "_xp", playerXP);// si victoire, ajouter 20 XP
         updateXPBars();
+        localStorage.setItem(selectedId + "_hp", playerHP); // sauvegarder les PV restants du joueur
         log("GG Victoire !");
         endCombat();
         return;
     }
+
+
     if (playerHP <= 0) {
-        localStorage.setItem(selectedId + "_hp"); // si défaite, pokémon a 0 HP
+        localStorage.setItem(selectedId + "_hp", 0); // si défaite, pokémon a 0 HP
         log(" LOOSER Défaite...");
         endCombat();
         return;
@@ -451,7 +458,7 @@ function restartCombat() {
     restartedCombat = true; // cette ligne permet de signaler qu'on a recommencé le combat au moins une fois
 
     document.getElementById("log").innerHTML = ""; // vider le log
-    localStorage.removeItem(selectedId + "_hp");    // reset HP stockés
+
     const btn = document.getElementById("restart-btn");
     if (btn) btn.remove();
     startCombat();
@@ -488,7 +495,17 @@ async function startCombat() {
     playerMaxHP = player.stats.find(s => s.stat.name === "hp").base_stat;
     enemyMaxHP = enemy.stats.find(s => s.stat.name === "hp").base_stat;
 
-    playerHP = playerMaxHP;
+    // Charger les HP sauvegardés du joueur
+    let savedHP = localStorage.getItem(selectedId + "_hp");
+
+    if (savedHP !== null) {
+        playerHP = parseInt(savedHP);
+    } else {
+        playerHP = playerMaxHP;
+        localStorage.setItem(selectedId + "_hp", playerMaxHP);
+    }
+
+    // Les HP ennemis sont remis à 100%
     enemyHP = enemyMaxHP;
 
     // Affichage des sprites + noms
@@ -506,13 +523,19 @@ async function startCombat() {
 
     const firstMoves = player.moves.slice(0, 4);
 
+    if(playerHP <= 0){
+        log("Le Pokémon sélectionné est KO ! Choisissez-en un autre dans l'inventaire.");
+        return;
+    }
+    else {
+
     for (let m of firstMoves) {
         const moveInfo = await fetch(m.move.url).then(r => r.json());
 
         const btn = document.createElement("button");
         btn.textContent = moveInfo.name + " (" + (moveInfo.power || 0) + ")";
         btn.onclick = () => {
-            if (playerTurn) {
+            if (playerTurn && playerHP > 0) {
                 useMove(player, enemy, moveInfo, true);
             }
         };
@@ -552,6 +575,7 @@ async function startCombat() {
     
 
     log("⚔️ Le combat commence !");
+    }
 }
 
 
