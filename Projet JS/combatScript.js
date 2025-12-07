@@ -348,20 +348,26 @@ async function usePotion(potion, inv) {
 async function useBall(ball, inv, enemy) { //mélange de usePotion et addToInventory
     if (Number(ball.quantity) > 0) {
         if (playerTurn) {
-            let catchChance = 50; //on prend 50% de catchrate
+            
+            let catchChance = Math.random() * 100; //on prend 50% de catchrate
             if (catchChance <= 50) {
-                   // Ajouter un Pokémon à l'inventaire
+                   
                 const caught = { //code alegrement repris du addToInventory
                     id: enemy.id,
                     name: enemy.name,
                     sprite: enemy.sprites.front_default,
-                    types: enemy.types,
-                    stats: enemy.stats,
+                    types: enemy.types.map(t => t.type.name).join(', '),
+                    stats: enemy.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', '),
                     isPokemon: true
                 };
-                inv.push(caught);
                 ball.quantity -= 1;
+                inv.push(caught);
+                //save localstorage
                 localStorage.setItem('inventory', JSON.stringify(inv));
+                
+                //save cache (pour dispo combat)
+                localStorage.setItem("pokemon_full_" + enemy.id, JSON.stringify(enemy));
+                
                 log("Pokémon capturé !");
                 endCombat();
             }
