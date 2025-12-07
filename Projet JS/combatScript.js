@@ -243,6 +243,29 @@ function updateXPBars() {
     if (playerXP >= playerMaxXP) {
         playerXP -= playerMaxXP;     // reste d'XP (ex : 120 → 20)
         playerLevel++;               // niveau +1
+
+        // Multiplier les stats à chaque level up
+        const selectedPokemon = getStoredPokemon(selectedId);
+        if (selectedPokemon) {
+            selectedPokemon.stats.forEach(stat => {
+                stat.base_stat = Math.floor(stat.base_stat * 1.10);
+            });
+
+            // Sauvegarde du Pokémon mis à jour dans le cache
+            localStorage.setItem("pokemon_full_" + selectedPokemon.id, JSON.stringify(selectedPokemon));
+
+            // Mettre à jour les HP max selon les nouvelles stats
+            playerMaxHP = selectedPokemon.stats.find(s => s.stat.name === "hp").base_stat;
+                playerHP = playerMaxHP;  
+                localStorage.setItem(selectedId + "_hp", playerHP);
+                updateHPBars();
+        }
+
+        // Evolution tous les 3 niveaux (si possible)
+        if (playerLevel % 3 === 0) {
+            checkEvolution(selectedPokemon);
+        }
+
         localStorage.setItem(selectedId + "_level", playerLevel);
 
         log(`Damn Thibault, ton pokemon passe au niveau ${playerLevel} !`);
@@ -256,6 +279,71 @@ function updateXPBars() {
     
 }
 
+// ---------------------------------------------
+//  Vérification de l'évolution
+// ---------------------------------------------
+async function checkEvolution(pokemon) {
+
+    try {
+        const species = await fetch(pokemon.species.url).then(r => r.json());
+        const family = await searchEvolutions(species.evolution_chain.url);
+
+        if (!family || family.length < 2) return;
+
+        const index = family.indexOf(pokemon.name.toLowerCase());
+        if (index === -1 || index === family.length - 1) return;
+
+        const nextName = family[index + 1];
+        evolvePokemon(pokemon, nextName);
+
+    } catch (err) {
+        console.error("Erreur checkEvolution :", err);
+    }
+}
+
+// ---------------------------------------------
+//  Evolution du Pokémon
+// ---------------------------------------------
+async function evolvePokemon(oldPokemon, nextName) {
+
+    log(`${oldPokemon.name} commence à évoluer…`);
+
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${nextName}`);
+    const evolvedPokemon = await res.json();
+
+    // Bonus stats à l'évolution
+    evolvedPokemon.stats.forEach(s => {
+        s.base_stat = Math.floor(s.base_stat * 1.10);
+    });
+
+    // PV conservés
+    const oldHP = parseInt(localStorage.getItem(oldPokemon.id + "_hp")) || evolvedPokemon.stats.find(s => s.stat.name === "hp").base_stat;
+
+    // Remplacement localStorage
+    localStorage.setItem("pokemon_full_" + evolvedPokemon.id, JSON.stringify(evolvedPokemon));
+    localStorage.setItem("selectedPokemonId", evolvedPokemon.id);
+    localStorage.setItem(evolvedPokemon.id + "_hp", oldHP);
+    localStorage.setItem(evolvedPokemon.id + "_xp", playerXP);
+    localStorage.setItem(evolvedPokemon.id + "_level", playerLevel);
+
+    // Supprimer l'ancien
+    localStorage.removeItem("pokemon_full_" + oldPokemon.id);
+
+    log(`Ton ${oldPokemon.name} évolue en **${evolvedPokemon.name}** !!`);
+
+    // Mise à jour interface
+    player = evolvedPokemon;
+    selectedId = evolvedPokemon.id;
+
+    document.getElementById("player-name").textContent = evolvedPokemon.name;
+    document.getElementById("player-sprite").src = evolvedPokemon.sprites.front_default;
+
+    playerMaxHP = evolvedPokemon.stats.find(s => s.stat.name === "hp").base_stat;
+    updateHPBars();
+    updateXPBars();
+
+    updateActions(evolvedPokemon);
+}
 
 
 // ---------------------------------------------
@@ -383,11 +471,6 @@ async function useBall(ball, inv, enemy) { //mélange de usePotion et addToInven
         log("Pas de pokeball restante :(");
     }
 } 
-
-
-
-
-
 
 
 // ---------------------------------------------
@@ -560,8 +643,35 @@ async function startCombat() {
     const firstMoves = player.moves.slice(0, 4);
 
     if(playerHP <= 0){
-        log("Le Pokémon sélectionné est KO ! Choisissez-en un autre dans l'inventaire.");
-        return;
+        log("Le Pokémon sélectionné est KO ! Vous devez utiliser une potion.");
+
+    const actionsDiv = document.getElementById("actions");
+    const itemDiv = document.getElementById("itemUseBar");
+
+    //Suppression des actions précédentes
+    actionsDiv.innerHTML = "";
+    itemDiv.innerHTML = "";
+
+    // Récupération inventaire
+    const inv = JSON.parse(localStorage.getItem('inventory'));
+    const potion = inv.find(item => item.isPokemon == false && item.name == 'potion');
+
+    // Si aucune potion
+    const btnPotion = document.createElement("button");
+    btnPotion.textContent = `Utiliser Potion (${potion.quantity})`;
+    btnPotion.onclick = () => {
+        if (potion.quantity > 0) {
+            usePotion(potion, inv);
+            btnPotion.textContent = `Utiliser Potion (${potion.quantity})`;
+
+            // Si le Pokémon n'est plus KO → relancer l'affichage normal
+            if (playerHP > 0) restoreCombatUI(); 
+        }
+    };
+
+    itemDiv.appendChild(btnPotion);
+
+    return;
     }
     else {
 
@@ -614,6 +724,52 @@ async function startCombat() {
     }
 }
 
+// ---------------------------------------------
+//  Récupération des données du combat (après utilisation d'une potion)
+// ---------------------------------------------
+function restoreCombatUI() {
+    const actionsDiv = document.getElementById("actions");
+    const itemDiv = document.getElementById("itemUseBar");
+
+    actionsDiv.innerHTML = "";
+    itemDiv.innerHTML = "";
+
+    const firstMoves = player.moves.slice(0, 4);
+
+    for (let m of firstMoves) {
+        const btn = document.createElement("button");
+        btn.textContent = m.move.name;
+        btn.onclick = () => {
+            if (playerTurn && playerHP > 0) {
+                fetch(m.move.url)
+                    .then(r => r.json())
+                    .then(moveInfo => useMove(player, enemy, moveInfo, true));
+            }
+        };
+        actionsDiv.appendChild(btn);
+    }
+
+    const inv = JSON.parse(localStorage.getItem('inventory'));
+
+    const potion = inv.find(i => !i.isPokemon && i.name === 'potion');
+    const btnPotion = document.createElement("button");
+    btnPotion.textContent = `Utiliser Potion (${potion.quantity})`;
+    btnPotion.onclick = () => {
+        usePotion(potion, inv);
+        btnPotion.textContent = `Utiliser Potion (${potion.quantity})`;
+    };
+    itemDiv.appendChild(btnPotion);
+
+    // pokeball
+    const ball = inv.find(i => !i.isPokemon && i.name === 'poke-ball');
+    const btnBall = document.createElement("button");
+    btnBall.textContent = `Utiliser pokeball (${ball.quantity})`;
+    btnBall.onclick = () => {
+        useBall(ball, inv, enemy);
+        btnBall.textContent = `Utiliser pokeball (${ball.quantity})`;
+    };
+    itemDiv.appendChild(btnBall);
+}
 
 
 if (localStorage.getItem("selectedPokemonId")) {
