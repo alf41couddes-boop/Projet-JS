@@ -50,10 +50,14 @@ function displayInventory() {
     const inventoryDiv = document.getElementById("inventory-list");
     inventoryDiv.innerHTML = ""; // Vider l'inventaire avant de le remplir
 
-    // Affichage des Pokémon dans l'inventaire
-    for (let i = 1; i <= 1025; i++) { // Supposons que tu as 6 Pokémon max
-        const storedPokemon = getStoredPokemon(i); // Récupérer les données du Pokémon
+    const inv = JSON.parse(localStorage.getItem("inventory")) || [];
 
+        // Afficher l'inventaire des Pokémons uniquement
+        const pokemons = inv.filter(item => item.isPokemon === true);
+
+        for (let pk of pokemons) {
+        const storedPokemon = getStoredPokemon(pk.id);
+        const i = pk.id;
         if (storedPokemon) {
             console.log(storedPokemon); // Vérification dans la console
             // Créer un bouton pour chaque Pokémon
@@ -164,6 +168,7 @@ async function updateActions(selectedPokemon) {
     const actionsDiv = document.getElementById("actions");
     actionsDiv.innerHTML = "";
 
+
     const firstMoves = selectedPokemon.moves.slice(0, 4);
 
     for (let m of firstMoves) {
@@ -254,16 +259,16 @@ function updateXPBars() {
             // Sauvegarde du Pokémon mis à jour dans le cache
             localStorage.setItem("pokemon_full_" + selectedPokemon.id, JSON.stringify(selectedPokemon));
 
-            // Mettre à jour les HP max selon les nouvelles stats
-            playerMaxHP = selectedPokemon.stats.find(s => s.stat.name === "hp").base_stat;
-                playerHP = playerMaxHP;  
-                localStorage.setItem(selectedId + "_hp", playerHP);
-                updateHPBars();
-        }
-
         // Evolution tous les 3 niveaux (si possible)
         if (playerLevel % 3 === 0) {
             checkEvolution(selectedPokemon);
+            
+        }
+
+            // Mettre à jour les HP max selon les nouvelles stats
+            playerMaxHP = selectedPokemon.stats.find(s => s.stat.name === "hp").base_stat;
+                playerHP = playerMaxHP;  
+                updateHPBars();
         }
 
         localStorage.setItem(selectedId + "_level", playerLevel);

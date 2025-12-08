@@ -23,10 +23,6 @@ const elements = {
     btnMode: $q('#btn-mode')
 };
 
-
-
-
-
 function search(){
     if(searchMode==1){  //mode pokemon  
         if(elements.searchInput.value!=""){ //si c'est pas vide
@@ -46,9 +42,6 @@ function search(){
                 return response.json();  //transformer la réponse en JSON exploitable
             })
             .then(data => { //obtenir les données JSON
-
-                // Stockage du Pokémon complet en cache
-                localStorage.setItem("pokemon_full_" + data.id, JSON.stringify(data));
 
                 console.log(response)   //pti test qui print la promise
                 j += 1;
