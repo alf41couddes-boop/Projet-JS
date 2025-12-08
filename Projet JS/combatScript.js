@@ -187,7 +187,7 @@ async function updateActions(selectedPokemon) {
 //  Générer un Pokémon adverse (PokéAPI)
 // ---------------------------------------------
 async function getRandomEnemy() {
-    const randomId = Math.floor(Math.random() * 1036) + 1;
+    const randomId = Math.floor(Math.random() * 1026) + 1;
     const res = await fetch("https://pokeapi.co/api/v2/pokemon/" + randomId);
     return await res.json();
 }
@@ -296,8 +296,8 @@ async function checkEvolution(pokemon) {
         const nextName = family[index + 1];
         evolvePokemon(pokemon, nextName);
 
-    } catch (err) {
-        console.error("Erreur checkEvolution :", err);
+    } catch (e) {
+        console.error("Erreur checkEvolution :", e);
     }
 }
 
@@ -334,6 +334,31 @@ async function evolvePokemon(oldPokemon, nextName) {
     // Mise à jour interface
     player = evolvedPokemon;
     selectedId = evolvedPokemon.id;
+
+    // Mise à jour dans l'inventaire
+    let inv = JSON.parse(localStorage.getItem("inventory")) || [];
+
+    // Trouver l'ancien Pokémon dans l’inventaire
+    let oldIndex = inv.findIndex(item => item.isPokemon && item.id === oldPokemon.id);
+
+    if (oldIndex !== -1) {
+
+        // Code récupéré de addToInventory pour créer la nouvelle entrée
+        const newEntry = {
+            id: evolvedPokemon.id,
+            name: evolvedPokemon.name,
+            sprite: evolvedPokemon.sprites.front_default,
+            types: evolvedPokemon.types.map(t => t.type.name).join(', '),
+            stats: evolvedPokemon.stats.map(s => s.stat.name + ': ' + s.base_stat).join(', '),
+            isPokemon: true
+        };
+
+        // Remplacer l'ancien Pokémon par le nouveau
+        inv[oldIndex] = newEntry;
+
+        // Sauvegarde
+        localStorage.setItem("inventory", JSON.stringify(inv));
+    }
 
     document.getElementById("player-name").textContent = evolvedPokemon.name;
     document.getElementById("player-sprite").src = evolvedPokemon.sprites.front_default;
@@ -544,6 +569,12 @@ function enemyAttack() {
 //  Fin du combat
 // ---------------------------------------------
 function endCombat() {
+
+    if(btnFuite){
+        const btn = document.getElementById("fuite-btn");
+        if (btn) btn.remove();
+        log("Tu as fui le combat !");
+    }
     document.getElementById("actions").innerHTML = "";
     document.getElementById("itemUseBar").innerHTML = "";
     log("<strong>Combat terminé.</strong>");
@@ -606,7 +637,7 @@ async function startCombat() {
 
     // Sécurité
     if (!selectedId) {
-        alert("Aucun Pokémon sélectionné ! Choisis-en un dans l’inventaire avant de combattre." + selectedId);
+        alert("Aucun Pokémon sélectionné ! Choisis-en un dans l'inventaire avant de combattre." + selectedId);
     }
 
     // Initialiser les PV, attaques, et autres données du combat comme avant
@@ -642,6 +673,7 @@ async function startCombat() {
 
     const firstMoves = player.moves.slice(0, 4);
 
+    fuire();
     if(playerHP <= 0){
         log("Le Pokémon sélectionné est KO ! Vous devez utiliser une potion.");
 
@@ -776,4 +808,17 @@ if (localStorage.getItem("selectedPokemonId")) {
     startCombat();
 } else {
     console.warn("Aucun Pokémon sélectionné, combat non lancé.");
+}
+
+function fuire(){
+        const combatContainer = document.getElementById("combat-controls");
+
+        btnFuite = document.createElement("button");
+        btnFuite.id = "fuite-btn"
+        btnFuite.classList.add("btn-mode");
+        btnFuite.style.textAlign = "center";
+        btnFuite.textContent = "Fuire";
+        btnFuite.onclick = endCombat;
+    
+    combatContainer.appendChild(btnFuite); 
 }

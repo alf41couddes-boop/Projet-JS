@@ -429,6 +429,12 @@ body{
     transition: width 0.4s;
 }
 
+.xp-row {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* espace entre la barre et le niveau */
+}
+
 .xp-bar {
     width: 150px;
     height: 20px;
@@ -512,4 +518,11 @@ body{
     #actions{ padding:8px; gap:8px }
     #actions button{ padding:10px 12px; font-size:14px }
     #itemUseBar button{ padding:8px 10px; font-size:13px }
+}
+
+.level-text {
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+    margin-top: 4px;
 }
