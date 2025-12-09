@@ -162,14 +162,21 @@ function selectPokemonForCombat(pokemonId) {
 }
 
 // ---------------------------------------------
+//  Fonction pour que tous les trois niveaux le nombre de mouvements augmente de 1
+// ---------------------------------------------
+function getNumberOfMovesForLevel(level) {
+    return 2 + Math.floor(level / 2);
+}
+// ---------------------------------------------
 //  Fonction pour récupérer les actions d'un pokemon sélectionné
 // ---------------------------------------------
 async function updateActions(selectedPokemon) {
     const actionsDiv = document.getElementById("actions");
     actionsDiv.innerHTML = "";
 
+    const movesToShow = getNumberOfMovesForLevel(playerLevel);
 
-    const firstMoves = selectedPokemon.moves.slice(0, 4);
+    const firstMoves = selectedPokemon.moves.slice(0, movesToShow);
 
     for (let m of firstMoves) {
         const moveInfo = await fetch(m.move.url).then(r => r.json());
@@ -244,10 +251,16 @@ function updateXPBars() {
     playerXP = parseInt(localStorage.getItem(selectedId + "_xp")) || 0;
     localStorage.setItem(selectedId + "_xp", playerXP);
 
+    // Ancien nombre de mouvements
+    const oldMoveCount = getNumberOfMovesForLevel(playerLevel);
+
     // Vérifier le LEVEL UP
     if (playerXP >= playerMaxXP) {
         playerXP -= playerMaxXP;     // reste d'XP (ex : 120 → 20)
         playerLevel++;               // niveau +1
+
+        // Nouveau nombre de mouvements
+        const newMoveCount = getNumberOfMovesForLevel(playerLevel);
 
         // Multiplier les stats à chaque level up
         const selectedPokemon = getStoredPokemon(selectedId);
@@ -269,6 +282,11 @@ function updateXPBars() {
             playerMaxHP = selectedPokemon.stats.find(s => s.stat.name === "hp").base_stat;
                 playerHP = playerMaxHP;  
                 updateHPBars();
+        }
+
+        // Si le nombre de mouvements a augmenté
+        if (newMoveCount > oldMoveCount) {
+            log(`Wow ${player.name} a appris une nouvelle compétence !`);
         }
 
         localStorage.setItem(selectedId + "_level", playerLevel);
@@ -569,7 +587,7 @@ function enemyAttack() {
         });
 }
 
-
+let aFui = false;
 // ---------------------------------------------
 //  Fin du combat
 // ---------------------------------------------
@@ -578,7 +596,11 @@ function endCombat() {
     if(btnFuite){
         const btn = document.getElementById("fuite-btn");
         if (btn) btn.remove();
+    }
+
+    if(aFui) {
         log("Tu as fui le combat !");
+        aFui = false; // reset pour le prochain combat
     }
     document.getElementById("actions").innerHTML = "";
     document.getElementById("itemUseBar").innerHTML = "";
@@ -676,7 +698,7 @@ async function startCombat() {
     const actionsDiv = document.getElementById("actions");
     actionsDiv.innerHTML = "";
 
-    const firstMoves = player.moves.slice(0, 4);
+    const firstMoves = player.moves.slice(0, getNumberOfMovesForLevel(playerLevel));
 
     fuire();
     if(playerHP <= 0){
@@ -771,7 +793,7 @@ function restoreCombatUI() {
     actionsDiv.innerHTML = "";
     itemDiv.innerHTML = "";
 
-    const firstMoves = player.moves.slice(0, 4);
+    const firstMoves = player.moves.slice(0, getNumberOfMovesForLevel(playerLevel));
 
     for (let m of firstMoves) {
         const btn = document.createElement("button");
@@ -823,7 +845,10 @@ function fuire(){
         btnFuite.classList.add("btn-mode");
         btnFuite.style.textAlign = "center";
         btnFuite.textContent = "Fuire";
-        btnFuite.onclick = endCombat;
+        btnFuite.onclick = () => {
+        aFui = true;
+        endCombat();
+    };
     
     combatContainer.appendChild(btnFuite); 
 }
