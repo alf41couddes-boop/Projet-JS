@@ -820,7 +820,7 @@ function restoreCombatUI() {
     itemDiv.appendChild(btnPotion);
 
     // pokeball
-    const ball = inv.find(i => !i.isPokemon && i.name === 'poke-ball');
+    const ball = inv.find(i => !i.isPokemon && i.name === 'poke-ball'); //cherche item qui pas pokemon et name poke-ball
     const btnBall = document.createElement("button");
     btnBall.textContent = `Utiliser pokeball (${ball.quantity})`;
     btnBall.onclick = () => {

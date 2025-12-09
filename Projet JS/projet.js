@@ -528,6 +528,31 @@ function emptyInventory() {
     inventory = [];
     localStorage.removeItem("inventory");
     localStorage.clear(); // Supprimer aussi les données complètes des Pokémons
+
+    // met potion/ball en inv quantity=0
+    const newInventory = [
+        {
+            id: "17",
+            name: "potion",
+            sprite: "undefined",
+            description: "Restores 20 HP.",
+            isPokemon: false,
+            quantity: 0
+        },
+        {
+            id: "4",
+            name: "poke-ball",
+            sprite: "undefined",
+            description: "Tries to catch a wild Pokémon.",
+            isPokemon: false,
+            quantity: 0
+        }
+    ];
+
+    // sauvegarde
+    localStorage.setItem('inventory', JSON.stringify(newInventory));
+    inventory = newInventory;
+
     alert("Inventaire vidé.");
 }
 
