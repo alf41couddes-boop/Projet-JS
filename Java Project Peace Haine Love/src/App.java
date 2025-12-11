@@ -1,5 +1,6 @@
 public class App {
     public static void main(String[] args) throws Exception {
+        /* 
         ListeReponse l1 = new ListeReponse();
         ListeReponse l2 = new ListeReponse();
         ListeReponse lq1 = new ListeReponse();
@@ -43,6 +44,8 @@ public class App {
         System.out.println("Correspondance à " + m1.comparaison(m2) + "%");
         lm.afficheListeCompteurComparatif(m1);
         lm.afficheListeCompteurComparatifTriee(m1);
-   
+        */
+        FenetreAccueil fenetre = new FenetreAccueil();
+        
     }
 }
