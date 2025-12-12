@@ -1,8 +1,9 @@
 
 public class Admin extends Utilisateur{
-
-    public Admin(int id){
-        super(id);
+    
+    
+    public Admin(int id, String email, String password){
+        super(id, email, password);
     }
 
     public void supprimerMembre(Membre m, ListeMembre lm){

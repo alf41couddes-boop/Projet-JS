@@ -1,16 +1,16 @@
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Font;
 
 public class FenetreAccueil extends JFrame {
     private JPanel panelBoutons;
-    private JButton bouton1, bouton2, bouton3;
+    private JButton boutonConnect, boutonCreateAccount, boutonQuit;
     private JLabel titre;
     private JTextArea illustration;
     
@@ -50,14 +50,23 @@ public class FenetreAccueil extends JFrame {
         panelBoutons = new JPanel();
         panelBoutons.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
 
-        bouton1 = new JButton("Se connecter");
-        bouton2 = new JButton("Créer un compte");
-        bouton3 = new JButton("Quitter");
+        boutonConnect = new JButton("Se connecter");
+        boutonCreateAccount = new JButton("Créer un compte");
+        boutonQuit = new JButton("Quitter");
 
-        panelBoutons.add(bouton1);
-        panelBoutons.add(bouton2);
-        panelBoutons.add(bouton3);
+        panelBoutons.add(boutonConnect);
+            boutonConnect.addActionListener(event -> {
+                FenetreConnect fenetre = new FenetreConnect();
+                fenetre.setVisible(true);
+            });
+        panelBoutons.add(boutonCreateAccount);
+            /*boutonCreateAccount.addActionListener(event -> {
+                FenetreCreationAccount fenetre = new FenetreCreationAccount();
+                fenetre.setVisible(true);
+            });*/
 
+        panelBoutons.add(boutonQuit);
+            boutonQuit.addActionListener(event -> System.exit(0));
         frame.add(panelBoutons, BorderLayout.SOUTH);
 
         frame.setVisible(true);

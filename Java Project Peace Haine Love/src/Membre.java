@@ -5,10 +5,12 @@ public class Membre extends Utilisateur {
     private String prenom;
     private int age;
     private String bio;
+    private String email;
+    private String password;
     private ListeReponse listeRep;
 
-    public Membre(int id, String nom, String prenom, int age,String bio, ListeReponse listeRep){
-        super(id);
+    public Membre(int id, String email, String password, String nom, String prenom, int age,String bio, ListeReponse listeRep){
+        super(id, email, password);
         this.nom = nom;
         this.prenom = prenom;
         this.age = age;
