@@ -56,17 +56,18 @@ public class FenetreAccueil extends JFrame {
 
         panelBoutons.add(boutonConnect);
             boutonConnect.addActionListener(event -> {
-                FenetreConnect fenetre = new FenetreConnect();
-                fenetre.setVisible(true);
+                FenetreConnect fenetreConnect = new FenetreConnect();
+                fenetreConnect.setVisible(true);
             });
         panelBoutons.add(boutonCreateAccount);
-            /*boutonCreateAccount.addActionListener(event -> {
-                FenetreCreationAccount fenetre = new FenetreCreationAccount();
-                fenetre.setVisible(true);
-            });*/
+            boutonCreateAccount.addActionListener(event -> {
+                FenetreCreationAccount fenetreCreation = new FenetreCreationAccount();
+                fenetreCreation.setVisible(true);
+            });
 
         panelBoutons.add(boutonQuit);
             boutonQuit.addActionListener(event -> System.exit(0));
+
         frame.add(panelBoutons, BorderLayout.SOUTH);
 
         frame.setVisible(true);

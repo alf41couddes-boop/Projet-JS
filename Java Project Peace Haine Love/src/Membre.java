@@ -11,6 +11,8 @@ public class Membre extends Utilisateur {
 
     public Membre(int id, String email, String password, String nom, String prenom, int age,String bio, ListeReponse listeRep){
         super(id, email, password);
+        this.email = email;
+        this.password = password;
         this.nom = nom;
         this.prenom = prenom;
         this.age = age;

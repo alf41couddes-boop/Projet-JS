@@ -3,7 +3,7 @@ import javax.swing.*;
 
 public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça aura cette gueule je pense, 
 //                                              jsp comment check que c'est un bon password etc ou pas
-private JTextField emailField;
+    private JTextField emailField;
     private JPasswordField passwordField;
     private JButton loginButton, cancelButton;
 
@@ -11,7 +11,7 @@ private JTextField emailField;
         super("Connexion");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);//ferme seulement cette fenetre
         setSize(350, 220);
-        //setLocationRelativeTo(null);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10)); 
 
         JPanel form = new JPanel(new GridLayout(2, 2, 8, 8));
