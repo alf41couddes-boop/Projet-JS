@@ -55,4 +55,17 @@ public class Membre extends Utilisateur {
         compteurComparatif = (compteurComparatif/listeRep.size())*100;
         return Math.floor(compteurComparatif);
     }
+
+    public String getNom() {
+        return nom;
+    }
+    public String getPrenom() {
+        return prenom;
+    }
+    public int getAge() {
+        return age;
+    }
+    public String getBio() {
+        return bio;
+    }
 }
