@@ -45,7 +45,7 @@ public class App {
         lm.afficheListeCompteurComparatif(m1);
         lm.afficheListeCompteurComparatifTriee(m1);
         */
-        //FenetreAccueil fenetre = new FenetreAccueil();
-        FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire();
+        FenetreAccueil fenetre = new FenetreAccueil();
+        //FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire();
     }
 }
