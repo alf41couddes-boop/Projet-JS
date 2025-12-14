@@ -55,7 +55,7 @@ public class FenetreCreationAccount extends JFrame{
         JOptionPane.showMessageDialog(this, "Compte créé pour: " + prenomText + " " + nomText + 
         "\nAfin de vérifier votre comptabilité de haine, veuillez maintenant remplir le questionnaire.");
 
-            FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire();
+            FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire(nouveauMembre);
                 fenetreQuestionnaire.setVisible(true);
         });
     }
