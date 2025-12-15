@@ -34,9 +34,21 @@ public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça au
         cancelButton.addActionListener(e -> dispose());
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
-            char[] password = passwordField.getPassword();
-            // TODO: valider et authentifier (Gestion/Utilisateur)
-            JOptionPane.showMessageDialog(this, "Tentative de connexion pour: " + email);
+            String password = new String(passwordField.getPassword());
+            
+            if (Db.connectUtilisateur(email, password)) {
+                JOptionPane.showMessageDialog(this, "Connexion réussie pour: " + email);
+                if(Db.isAdmin(email)) {
+                    FenetreAdmin adminFrame = new FenetreAdmin();
+                    
+                } else {
+                    FenetreUtilisateur userFrame = new FenetreUtilisateur();
+                    
+                }
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Email ou mot de passe incorrect.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
         });
     }
 }
