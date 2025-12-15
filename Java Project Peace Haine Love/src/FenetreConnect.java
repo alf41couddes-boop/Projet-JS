@@ -39,11 +39,11 @@ public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça au
             if (Db.connectUtilisateur(email, password)) {
                 JOptionPane.showMessageDialog(this, "Connexion réussie pour: " + email);
                 if(Db.isAdmin(email)) {
-                    FenetreAdmin adminFrame = new FenetreAdmin();
-                    
+                    //FenetreAdmin adminFrame = new FenetreAdmin();
+                    System.out.println("Admin connecté");
                 } else {
-                    FenetreUtilisateur userFrame = new FenetreUtilisateur();
-                    
+                    //FenetreUtilisateur userFrame = new FenetreUtilisateur();
+                    System.out.println("Utilisateur connecté");
                 }
                 dispose();
             } else {
