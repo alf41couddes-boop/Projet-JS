@@ -9,14 +9,11 @@ public static Statement connexion() {
     try {
         String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
         Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection com = DriverManager.getConnection(url,"user","user");
+        conn = DriverManager.getConnection(url, "user", "user");
         System.out.println("connexion réussi");
-        
-        Statement stmt=com.createStatement();  
+        stmt = conn.createStatement();
         return stmt;
-    }
-    catch (Exception e) 
-    {
+    } catch (Exception e) {
         e.printStackTrace();
         System.out.println("Erreur");
         System.exit(0);
@@ -74,5 +71,29 @@ public static boolean connectUtilisateur(String email, String password) {
             return false;
         }
     }
+
+public static void addMember(String nom, String prenom, String email, String pwd, String bio) {
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+        
+        String sql = "INSERT INTO utilisateur (email, password, nom, prenom, age, bio, type_utilisateur) VALUES (?, ?, ?, ?, 0, ?, 'membre') ; ";
+                        
+        PreparedStatement pstmt = conn.prepareStatement(sql); //prepa commande
+        pstmt.setString(1, email);  
+        pstmt.setString(2, pwd);
+        pstmt.setString(3, nom);
+        pstmt.setString(4, prenom);
+        pstmt.setString(5, bio);
+        
+        pstmt.executeUpdate();
+        pstmt.close();
+        conn.close();
+    
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }
  

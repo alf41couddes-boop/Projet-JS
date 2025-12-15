@@ -51,12 +51,19 @@ public class FenetreCreationAccount extends JFrame{
             String emailText = email.getText();
             String passwordText = password.getText();
 
-        Membre nouveauMembre = new Membre(0, emailText, passwordText, nomText, prenomText, Integer.parseInt(ageText), bioText, new ListeReponse());
+            
+        Db.addMember(nomText, prenomText, emailText, passwordText, bioText);
         JOptionPane.showMessageDialog(this, "Compte créé pour: " + prenomText + " " + nomText + 
+        
         "\nAfin de vérifier votre comptabilité de haine, veuillez maintenant remplir le questionnaire.");
 
+            // Crée l'objet Membre pour la fenêtre questionnaire (âge ignoré -> 0)
+            Membre nouveauMembre = new Membre(0,emailText,passwordText,nomText,prenomText,0,bioText,new ListeReponse()
+            );
+
             FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire(nouveauMembre);
-                fenetreQuestionnaire.setVisible(true);
+            dispose();
+            fenetreQuestionnaire.setVisible(true);
         });
     }
 }

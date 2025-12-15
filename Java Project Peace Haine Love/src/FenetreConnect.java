@@ -6,6 +6,7 @@ public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça au
     private JTextField emailField;
     private JPasswordField passwordField;
     private JButton loginButton, cancelButton;
+    private static FenetreAccueil FenetreAccueil;
 
     public FenetreConnect() {
         super("Connexion");
@@ -35,14 +36,18 @@ public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça au
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
-            
+
             if (Db.connectUtilisateur(email, password)) {
                 JOptionPane.showMessageDialog(this, "Connexion réussie pour: " + email);
+                Db.connexion(); // Initialise la connexion globale pour isAdmin
                 if(Db.isAdmin(email)) {
-                    //FenetreAdmin adminFrame = new FenetreAdmin();
+                    
+                    
+                    
                     System.out.println("Admin connecté");
                 } else {
-                    //FenetreUtilisateur userFrame = new FenetreUtilisateur();
+                    
+                    
                     System.out.println("Utilisateur connecté");
                 }
                 dispose();

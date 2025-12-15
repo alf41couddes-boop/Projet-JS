@@ -15,9 +15,9 @@ public class FenetreQuestionnaire extends JFrame {
         try {
             // Connexion à la base de données
             Statement stmt = Db.connexion();
-            ResultSet rs = stmt.executeQuery("SELECT textQuestion FROM questions WHERE id = " + questionId);
+            ResultSet rs = stmt.executeQuery("SELECT texte FROM question WHERE id = " + questionId);
             if (rs.next()) {
-                question = rs.getString("textQuestion");
+                question = rs.getString("texte");
             }
         } catch (SQLException e) {
             e.printStackTrace();
