@@ -1,8 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 
-public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça aura cette gueule je pense, 
-//                                              jsp comment check que c'est un bon password etc ou pas
+public class FenetreConnect extends JFrame { 
     private JTextField emailField;
     private JPasswordField passwordField;
     private JButton loginButton, cancelButton;
@@ -15,20 +14,27 @@ public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça au
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10)); 
 
-        JPanel form = new JPanel(new GridLayout(2, 2, 8, 8));
-        form.add(new JLabel("Email:"));
+        JPanel panneau = new JPanel(new GridLayout(2, 2, 8, 8));
+
         emailField = new JTextField();
-        form.add(emailField);
-        form.add(new JLabel("Mot de passe:"));
         passwordField = new JPasswordField();
-        form.add(passwordField);
-        add(form, BorderLayout.CENTER);
+
+        panneau.add(new JLabel("Email:"));
+        panneau.add(emailField);
+        panneau.add(new JLabel("Mot de passe:"));
+        panneau.add(passwordField);
+
+        add(panneau, BorderLayout.CENTER);
+        
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
         loginButton = new JButton("Se connecter");
         cancelButton = new JButton("Annuler");
+
         actions.add(cancelButton);
         actions.add(loginButton);
+
         add(actions, BorderLayout.SOUTH);
 
         // Actions
