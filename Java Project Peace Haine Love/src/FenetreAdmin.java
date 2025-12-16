@@ -14,6 +14,7 @@ public class FenetreAdmin extends JFrame implements ActionListener {
     private JPanel content;
     private JPanel panneauQuestion, panneauReponse;
     private CardLayout gestionnaireFenetre;
+    private String panneauActuel = "question"; //variable selon type d'affichage par defaut question
 
     public FenetreAdmin() {
         setTitle("Admin - Ajouter Question ou Réponse");
@@ -86,55 +87,52 @@ public class FenetreAdmin extends JFrame implements ActionListener {
     }
 
     
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) { //quand y'a un click
         if (e.getSource() == itemQuestion) { //si item question cliqué
             gestionnaireFenetre.show(content, "question");
+            panneauActuel = "question";
 
         } else if (e.getSource() == itemReponse) { //si item reponse cliqué
             gestionnaireFenetre.show(content, "reponse");
+            panneauActuel = "reponse";
         } else if (e.getSource() == btnAjouter) { //si bouton ajouter cliqué
             onAjouter();
         }
     }
 
-    private void onAjouter() {
-        Component visible = null;
-        for (Component c : content.getComponents()) {
-            if (c.isVisible()) {
-                visible = c;
-                break;
-            }
-        }
+    private void onAjouter() { //fonction ajout, depend de question/reponse
 
-        if (visible == panneauQuestion) {
+        if (panneauActuel.equals("question")) { //si question (equal pcq string)
             String texte = questionTexte.getText().trim();
             if (texte.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Texte vide", "Erreur", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Texte vide", "Erreur", JOptionPane.ERROR_MESSAGE); //pop up erreur
                 return;
             }
             int id = Db.addQuestion(texte, questionTexteLibre.isSelected());
-            if (id > 0) {
-                JOptionPane.showMessageDialog(this, "Question ajoutée (id=" + id + ")");
-                questionTexte.setText("");
+            if (id > 0) {                                                                   //si id positif
+                JOptionPane.showMessageDialog(this, "Question ajoutée (id=" + id + ")");    // popo up reussite
+                questionTexte.setText("");                                                //reset les champs de txt
                 questionTexteLibre.setSelected(false);
             }
-        } else if (visible == panneauReponse) {
-            String idStr = questionIdField.getText().trim();
-            if (idStr.isEmpty()) {
+        } else 
+            
+        if (panneauActuel.equals("reponse")) { //si reponse
+            String idStr = questionIdField.getText().trim(); // get id question sous string
+            if (idStr.isEmpty()) { //erreur si vide
                 JOptionPane.showMessageDialog(this, "ID vide", "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             try {
-                int idQuestion = Integer.parseInt(idStr);
+                int idQuestion = Integer.parseInt(idStr); //parse id
                 String texte = reponseTexte.getText().trim();
                 if (texte.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Texte vide", "Erreur", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                int id = Db.addReponse(texte, idQuestion);
-                if (id > 0) {
+                int id = Db.addReponse(texte, idQuestion); //fonction DB ajout reponse
+                if (id > 0) { //que si id positif
                     JOptionPane.showMessageDialog(this, "Réponse ajoutée (id=" + id + ")");
-                    questionIdField.setText("");
+                    questionIdField.setText(""); 
                     reponseTexte.setText("");
                 }
             } catch (NumberFormatException ex) {
