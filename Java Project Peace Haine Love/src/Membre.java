@@ -45,16 +45,38 @@ public class Membre extends Utilisateur {
         return listeRep;
     }
 
-    public double comparaison(Membre m){
-        double compteurComparatif = 0 ;
-         for (int i = 0; i<listeRep.size(); i++){   
-            if(listeRep.getRep(i) == m.getListeRep().getRep(i)){
-                compteurComparatif++;
+    public double comparaison(Membre autre) {
+
+    if (this.listeRep.size() == 0 || autre.getListeRep().size() == 0) {
+        return 0;
+    }
+
+    int commun = 0;
+    int total = 0;
+
+    for (int i = 0; i < this.listeRep.size(); i++) {
+        Reponse r1 = this.listeRep.getRep(i);
+
+        for (int j = 0; j < autre.getListeRep().size(); j++) {
+            Reponse r2 = autre.getListeRep().getRep(j);
+
+            // même question
+            if (r1.getQuestion().getIdQuestion() == r2.getQuestion().getIdQuestion()) {
+                total++;
+                // même réponse
+                if (r1.getIdReponse() == r2.getIdReponse()) {
+                    commun++;
+                }
+                break;
             }
         }
-        compteurComparatif = (compteurComparatif/listeRep.size())*100;
-        return Math.floor(compteurComparatif);
     }
+
+    if (total == 0) return 0;
+
+    return Math.floor((commun * 100.0) / total);
+}
+
 
     public String getNom() {
         return nom;

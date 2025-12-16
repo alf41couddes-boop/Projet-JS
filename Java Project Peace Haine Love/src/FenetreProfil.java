@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class FenetreProfil extends JFrame{
@@ -41,6 +43,27 @@ public class FenetreProfil extends JFrame{
         actions.add(editButton);
         actions.add(correspondancesButton);
         add(actions, BorderLayout.SOUTH);
+
+        // Zone des likes reçus
+        JPanel likesPanel = new JPanel();
+        likesPanel.setLayout(new BoxLayout(likesPanel, BoxLayout.Y_AXIS));
+        likesPanel.setBorder(BorderFactory.createTitledBorder("Likes reçus"));
+
+        // Récupération des membres ayant liké
+        ArrayList<Membre> likers = Db.getLikesRecus(membreConnecte.getId());
+        if (likers.isEmpty()) {
+            likesPanel.add(new JLabel("Personne ne vous a liké pour l'instant."));
+        } else {
+            for (Membre me : likers) {
+                likesPanel.add(new JLabel(me.getPrenom() + " " + me.getNom() + " vous a liké!"));
+            }
+        }
+
+        // Mettre la zone des likes dans un JScrollPane pour gérer beaucoup de likes
+        JScrollPane likesScroll = new JScrollPane(likesPanel);
+        likesScroll.setPreferredSize(new Dimension(200, 0)); // largeur fixe
+        add(likesScroll, BorderLayout.EAST);
+
 
         // Actions
         quitButton.addActionListener(e -> dispose());

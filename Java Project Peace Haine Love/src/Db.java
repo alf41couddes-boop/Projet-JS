@@ -169,7 +169,7 @@ public static void addMember(String nom, String prenom, String email, String pwd
                 prenom,
                 age,
                 bio,
-                new ListeReponse()
+                getReponsesByMembreId(id)
             );
 
             rs.close();
@@ -220,7 +220,7 @@ public static void addMember(String nom, String prenom, String email, String pwd
                 prenom,
                 age,
                 bio,
-                new ListeReponse()
+                getReponsesByMembreId(id)
             );
 
             liste.add(m);
@@ -274,7 +274,7 @@ public static void addMember(String nom, String prenom, String email, String pwd
         Question q = new Question(questionId, "", false);
 
         while (rs.next()) {
-            double idReponse = rs.getDouble("id");
+            int idReponse = rs.getInt("id");
             String texte = rs.getString("texte");
             Reponse r = new Reponse(idReponse, texte, q); 
             reponses.add(r);
@@ -283,6 +283,127 @@ public static void addMember(String nom, String prenom, String email, String pwd
         e.printStackTrace();
     }
     return reponses;
+}
+
+    public static void addReponseMembre(int membreId, int reponseId) {
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+
+        String sql = "INSERT INTO membre_reponse (membre_id, reponse_id) VALUES (?, ?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, membreId);
+        pstmt.setInt(2, reponseId);
+
+        pstmt.executeUpdate();
+
+        pstmt.close();
+        conn.close();
+
+    } catch (SQLException e) {
+        // Cas fréquent : réponse déjà enregistrée (clé primaire)
+        System.out.println("Réponse déjà enregistrée pour ce membre.");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+    public static ListeReponse getReponsesByMembreId(int membreId) {
+    ListeReponse lr = new ListeReponse();
+
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+
+        String sql = """
+            SELECT r.id, r.texte, r.question_id
+            FROM reponse r
+            JOIN membre_reponse mr ON r.id = mr.reponse_id
+            WHERE mr.membre_id = ?
+        """;
+
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, membreId);
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            Question q = new Question(rs.getInt("question_id"), "", false);
+            Reponse r = new Reponse(rs.getInt("id"), rs.getString("texte"), q);
+            lr.add(r);
+        }
+
+        rs.close();
+        pstmt.close();
+        conn.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return lr;
+}
+
+    public static void likerMembre(int membreId, int likerId) {
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+
+        String sql = "INSERT INTO like_membre (membre_id, liker_id) VALUES (?, ?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, membreId);
+        pstmt.setInt(2, likerId);
+        pstmt.executeUpdate();
+
+        pstmt.close();
+        conn.close();
+
+    } catch (SQLException e) {
+        // ignore si déjà liké
+        System.out.println("Déjà liké.");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+    public static ArrayList<Membre> getLikesRecus(int membreId) {
+    ArrayList<Membre> likers = new ArrayList<>();
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+
+        String sql = "SELECT u.* FROM like_membre lm " +
+                     "JOIN utilisateur u ON lm.liker_id = u.id " +
+                     "WHERE lm.membre_id = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, membreId);
+
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            Membre m = new Membre(
+                rs.getInt("id"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("nom"),
+                rs.getString("prenom"),
+                rs.getInt("age"),
+                rs.getString("bio"),
+                new ListeReponse()
+            );
+            likers.add(m);
+        }
+
+        rs.close();
+        pstmt.close();
+        conn.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return likers;
 }
 
 

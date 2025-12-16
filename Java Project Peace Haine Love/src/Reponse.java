@@ -1,10 +1,10 @@
 
 public class Reponse {
-    private double idReponse;
+    private int idReponse;
     private String texteReponse;
     private Question questionAssociee;
 
-    public Reponse(double idReponse, String texteReponse, Question questionAssociee){
+    public Reponse(int idReponse, String texteReponse, Question questionAssociee){
         this.idReponse = idReponse;
         this.texteReponse = texteReponse;
         this.questionAssociee = questionAssociee;
@@ -28,6 +28,10 @@ public class Reponse {
     }
 
     public double getIdReponse(){
+        return idReponse;
+    }
+
+    public int getId(){
         return idReponse;
     }
 

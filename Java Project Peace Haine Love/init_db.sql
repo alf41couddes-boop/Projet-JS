@@ -62,3 +62,54 @@ INSERT INTO reponse (id, texte, question_id) VALUES
 (9, '16-18 ans : le lycée', 3),
 (10, '19-23 ans : les études-sup', 3),
 (11, '24+ ans : je hais ma vie actuelle', 3);
+
+// Deuxieme insertion de données de test pour plus de questions
+
+INSERT INTO utilisateur (email, password, nom, prenom, age, bio, type_utilisateur) VALUES
+('membre2@phl.com', 'password123', 'Martin', 'Alice', 28, 'Je déteste le bruit et les gens pressés', 'membre');
+
+INSERT INTO question (id, texte, texte_libre) VALUES
+(4, 'Détestes-tu attendre dans une file trop longue ?', FALSE),
+(5, 'Quel type de personnes te fait lever les yeux au ciel ?', FALSE),
+(6, 'Détestes-tu parler au téléphone ?', FALSE),
+(7, 'Quel moment de la journée détestes-tu le plus ?', FALSE),
+(8, 'Quelle activité quotidienne te fatigue le plus ?', FALSE),
+(9, 'Détestes-tu les réunions inutiles ?', FALSE),
+(10, 'Qu’est-ce qui t’énerve le plus sur les réseaux sociaux ?', FALSE);
+
+INSERT INTO reponse (id, texte, question_id) VALUES
+(12, 'Oui', 4),
+(13, 'Non', 4),
+(14, 'Les gens arrogants', 5),
+(15, 'Les bavards', 5),
+(16, 'Les pessimistes', 5),
+(17, 'Les optimistes', 5),
+(18, 'Oui', 6),
+(19, 'Non', 6),
+(20, 'Le matin', 7),
+(21, 'L’après-midi', 7),
+(22, 'Le soir', 7),
+(23, 'La nuit', 7),
+(24, 'Faire les courses', 8),
+(25, 'Faire le ménage', 8),
+(26, 'Aller au travail', 8),
+(27, 'Oui', 9),
+(28, 'Non', 9);
+(30, 'Les commentaires agressifs', 10),
+(31, 'Les fake news', 10),
+(32, 'Les influenceurs', 10),
+(33, 'Les pubs incessantes', 10),
+(34, 'Les débats inutiles', 10),
+(35, 'Les gens qui étalent leur vie', 10),
+(36, 'Les trucs de nourriture là', 10);
+
+CREATE TABLE IF NOT EXISTS like_membre (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    membre_id INT NOT NULL,        -- qui a été liké
+    liker_id INT NOT NULL,         -- qui a liké
+    date_like TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(membre_id, liker_id),
+    FOREIGN KEY (membre_id) REFERENCES utilisateur(id),
+    FOREIGN KEY (liker_id) REFERENCES utilisateur(id)
+);
+

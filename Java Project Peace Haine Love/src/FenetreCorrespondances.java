@@ -3,7 +3,7 @@ import javax.swing.*;
 
 public class FenetreCorrespondances extends JFrame {
     private Membre membreConnecte;
-    private JTextArea correspondancesArea;
+    private JPanel correspondancesPanel;
     private JButton closeButton;
 
     public FenetreCorrespondances(Membre m) {
@@ -15,9 +15,10 @@ public class FenetreCorrespondances extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
-        correspondancesArea = new JTextArea();
-        correspondancesArea.setEditable(false);
-        add(new JScrollPane(correspondancesArea), BorderLayout.CENTER);
+        correspondancesPanel = new JPanel();
+        correspondancesPanel.setLayout(new BoxLayout(correspondancesPanel, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(correspondancesPanel);
+        add(scrollPane, BorderLayout.CENTER);
 
         closeButton = new JButton("Fermer");
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -32,27 +33,37 @@ public class FenetreCorrespondances extends JFrame {
     }
 
     private void afficherCorrespondances() {
-        ListeMembre lm = Db.getAllMembres(); // Récupère tous les membres depuis la base de données
-        StringBuilder sb = new StringBuilder();
+    ListeMembre lm = Db.getAllMembres();
+    correspondancesPanel.removeAll(); // vider avant de remplir
 
-        System.out.println("Membre connecté : " + membreConnecte.getId());
-System.out.println("Nb réponses membre connecté : " + membreConnecte.getListeRep().size());
+    for (Membre autreMembre : lm.getMembres()) {
+        if (autreMembre.getId() != membreConnecte.getId()) {
 
-        for (Membre autreMembre : lm.getMembres()) {
-            if (autreMembre.getId() != membreConnecte.getId()) { // Ne pas comparer avec soi-même
-                System.out.println("Comparaison avec " + autreMembre.getId() +
-    " | réponses : " + autreMembre.getListeRep().size());
+            double pourcentage = membreConnecte.comparaison(autreMembre);
 
-                double pourcentage = membreConnecte.comparaison(autreMembre);
-                sb.append(autreMembre.getPrenom())
-                  .append(" ")
-                  .append(autreMembre.getNom())
-                  .append(" : ")
-                  .append(pourcentage)
-                  .append("% de correspondance\n");
-            }
+            // Panel pour ce membre
+            JPanel panelMembre = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JLabel label = new JLabel(autreMembre.getPrenom() + " " + autreMembre.getNom() 
+                                      + " : " + pourcentage + "% de correspondance");
+            JButton likerButton = new JButton("Like ;)");
+
+            // Action du bouton
+            likerButton.addActionListener(e -> {
+                Db.likerMembre(autreMembre.getId(), membreConnecte.getId());
+                JOptionPane.showMessageDialog(this, "Vous avez liké " + autreMembre.getPrenom());
+                System.out.println("Vous avez liké " + autreMembre.getPrenom());
+            });
+
+            panelMembre.add(label);
+            panelMembre.add(likerButton);
+
+            correspondancesPanel.add(panelMembre);
         }
-        correspondancesArea.setText(sb.toString());
     }
+
+    correspondancesPanel.revalidate();
+    correspondancesPanel.repaint();
+}
+
 
 }
