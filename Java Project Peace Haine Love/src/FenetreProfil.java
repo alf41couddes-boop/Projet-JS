@@ -3,7 +3,7 @@ import javax.swing.*;
 
 public class FenetreProfil extends JFrame{
     private JTextField nom, prenom, age, bio, email, password;
-    private JButton createButton, cancelButton;
+    private JButton correspondancesButton, quitButton;
     private JPanel form;
     private Membre membreConnecte;
 
@@ -29,14 +29,15 @@ public class FenetreProfil extends JFrame{
         add(form, BorderLayout.CENTER);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        createButton = new JButton("Afficher les correspondances");
-        actions.add(createButton);
+        correspondancesButton = new JButton("Afficher les correspondances");
+        actions.add(correspondancesButton);
         add(actions, BorderLayout.SOUTH);
 
         // Actions
-        cancelButton.addActionListener(e -> dispose());
-        createButton.addActionListener(e -> {
-            
+        //quitButton.addActionListener(e -> dispose());
+        correspondancesButton.addActionListener(e -> {
+            FenetreCorrespondances fenetreCorrespondances = new FenetreCorrespondances(membreConnecte);
+            fenetreCorrespondances.setVisible(true);
         });
     }
 }

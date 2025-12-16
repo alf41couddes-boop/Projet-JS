@@ -68,4 +68,8 @@ public class ListeMembre {
             m.afficheProfil();
         }
     }
+
+    public ArrayList<Membre> getMembres() {
+        return listeMembre;
+    }
 }

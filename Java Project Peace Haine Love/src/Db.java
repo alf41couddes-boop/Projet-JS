@@ -95,5 +95,102 @@ public static void addMember(String nom, String prenom, String email, String pwd
         e.printStackTrace();
     }
 }
+
+    public static Membre getMembreByEmail(String email) {
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+
+        String sql = "SELECT * FROM utilisateur WHERE email = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, email);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            int id = rs.getInt("id");
+            String password = rs.getString("password");
+            String nom = rs.getString("nom");
+            String prenom = rs.getString("prenom");
+            int age = rs.getInt("age");
+            String bio = rs.getString("bio");
+
+            Membre membre = new Membre(
+                id,
+                email,
+                password,
+                nom,
+                prenom,
+                age,
+                bio,
+                new ListeReponse()
+            );
+
+            rs.close();
+            pstmt.close();
+            conn.close();
+
+            return membre;
+        }
+
+        rs.close();
+        pstmt.close();
+        conn.close();
+        return null;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+
+    public static ListeMembre getAllMembres() {
+
+    ListeMembre liste = new ListeMembre();
+
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+
+        String sql = "SELECT * FROM utilisateur WHERE type_utilisateur = 'membre'";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String email = rs.getString("email");
+            String password = rs.getString("password");
+            String nom = rs.getString("nom");
+            String prenom = rs.getString("prenom");
+            int age = rs.getInt("age");
+            String bio = rs.getString("bio");
+
+            Membre m = new Membre(
+                id,
+                email,
+                password,
+                nom,
+                prenom,
+                age,
+                bio,
+                new ListeReponse()
+            );
+
+            liste.add(m);
+        }
+
+        rs.close();
+        pstmt.close();
+        conn.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return liste;
+}
+
 }
  

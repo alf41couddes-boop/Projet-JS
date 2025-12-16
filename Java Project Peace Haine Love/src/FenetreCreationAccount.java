@@ -46,7 +46,15 @@ public class FenetreCreationAccount extends JFrame{
         createButton.addActionListener(e -> {
             String nomText = nom.getText();
             String prenomText = prenom.getText();
-            String ageText = age.getText();
+
+            int ageValue;
+            try {
+                ageValue = Integer.parseInt(age.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Âge invalide !");
+                return;
+            }
+
             String bioText = bio.getText();
             String emailText = email.getText();
             String passwordText = password.getText();
@@ -58,7 +66,7 @@ public class FenetreCreationAccount extends JFrame{
         "\nAfin de vérifier votre comptabilité de haine, veuillez maintenant remplir le questionnaire.");
 
             // Crée l'objet Membre pour la fenêtre questionnaire (âge ignoré -> 0)
-            Membre nouveauMembre = new Membre(0,emailText,passwordText,nomText,prenomText,0,bioText,new ListeReponse()
+            Membre nouveauMembre = new Membre(0,emailText,passwordText,nomText,prenomText,ageValue,bioText,new ListeReponse()
             );
 
             FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire(nouveauMembre);

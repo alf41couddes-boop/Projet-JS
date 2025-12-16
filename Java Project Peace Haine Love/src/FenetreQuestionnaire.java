@@ -94,8 +94,10 @@ public class FenetreQuestionnaire extends JFrame {
             questionLabel.setText(questionText);
         } else {
             // Si aucune question n'est trouvée, terminer le questionnaire
-            JOptionPane.showMessageDialog(this, "Merci d'avoir complété le questionnaire !");
+            JOptionPane.showMessageDialog(this, "Merci d'avoir complété le questionnaire !\n Maintenant vous pouvez accéder à votre profil et commencer l'aventure de la HAINE...");
             dispose(); // Fermer la fenêtre du questionnaire
+                    FenetreProfil fenetreProfil = new FenetreProfil(membre);
+                    fenetreProfil.setVisible(true);
         }
     }
 }

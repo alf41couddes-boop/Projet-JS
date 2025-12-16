@@ -46,9 +46,12 @@ public class FenetreConnect extends JFrame { //fait en vif avec l'IA mais ça au
                     
                     System.out.println("Admin connecté");
                 } else {
-                    
-                    
                     System.out.println("Utilisateur connecté");
+
+                    Membre membreConnecte = Db.getMembreByEmail(email);
+                    FenetreProfil fenetreProfil = new FenetreProfil(membreConnecte);
+                    dispose();
+                    fenetreProfil.setVisible(true);
                 }
                 dispose();
             } else {
