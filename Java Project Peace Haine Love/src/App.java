@@ -50,7 +50,7 @@ public class App {
         
         //FenetreAccueil fenetre = new FenetreAccueil();
         //FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire();
-        FenetreProfil fenetrep = new FenetreProfil(Db.getMembreByEmail("demo@phl.com"));
+        FenetreAdmin fenetreAdmin = new FenetreAdmin();
 
     }
 }

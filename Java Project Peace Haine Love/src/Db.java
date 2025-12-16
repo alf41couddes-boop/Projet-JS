@@ -21,6 +21,50 @@ public static Statement connexion() {
     }
 }
 
+public static int addQuestion(String texte, boolean texteLibre) {
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connLocal = DriverManager.getConnection(url, "user", "user");
+        
+        try (PreparedStatement ps = connLocal.prepareStatement("INSERT INTO question (texte, texte_libre) VALUES (?, ?)",
+                Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, texte);
+            ps.setBoolean(2, texteLibre);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) { 
+                if (keys.next()) return keys.getInt(1);
+            }
+        }
+        connLocal.close();
+    } catch (Exception e) {
+        // ignore
+    }
+    return -1;
+}
+
+public static int addReponse(String texte, int idQuestion) {
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connLocal = DriverManager.getConnection(url, "user", "user");
+        
+        try (PreparedStatement ps = connLocal.prepareStatement("INSERT INTO reponse (texte, question_id) VALUES (?, ?)",
+                Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, texte);
+            ps.setInt(2, idQuestion);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) return keys.getInt(1);
+            }
+        }
+        connLocal.close();
+    } catch (Exception e) {
+        // ignore
+    }
+    return -1;
+}
+
 public static boolean connectUtilisateur(String email, String password) {
     try {
         String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
