@@ -34,8 +34,15 @@ public class FenetreCorrespondances extends JFrame {
     private void afficherCorrespondances() {
         ListeMembre lm = Db.getAllMembres(); // Récupère tous les membres depuis la base de données
         StringBuilder sb = new StringBuilder();
+
+        System.out.println("Membre connecté : " + membreConnecte.getId());
+System.out.println("Nb réponses membre connecté : " + membreConnecte.getListeRep().size());
+
         for (Membre autreMembre : lm.getMembres()) {
             if (autreMembre.getId() != membreConnecte.getId()) { // Ne pas comparer avec soi-même
+                System.out.println("Comparaison avec " + autreMembre.getId() +
+    " | réponses : " + autreMembre.getListeRep().size());
+
                 double pourcentage = membreConnecte.comparaison(autreMembre);
                 sb.append(autreMembre.getPrenom())
                   .append(" ")
