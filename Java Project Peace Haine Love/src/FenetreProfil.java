@@ -63,7 +63,7 @@ public class FenetreProfil extends JFrame{
 
         // Mettre la zone des likes dans un JScrollPane pour gérer beaucoup de likes
         JScrollPane likesScroll = new JScrollPane(likesPanel);
-        likesScroll.setPreferredSize(new Dimension(200, 0)); // largeur fixe
+        likesScroll.setPreferredSize(new Dimension(300, 0)); // largeur fixe
         add(likesScroll, BorderLayout.EAST);
 
 

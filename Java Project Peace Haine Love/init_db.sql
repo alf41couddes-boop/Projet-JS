@@ -113,3 +113,5 @@ CREATE TABLE IF NOT EXISTS like_membre (
     FOREIGN KEY (liker_id) REFERENCES utilisateur(id)
 );
 
+INSERT INTO utilisateur (email, password, nom, prenom, age, bio, type_utilisateur) VALUES
+('membre3@phl.com', 'password456', 'Dupont', 'Lucas', 32, 'Amoureux de la nature et des longues balades', 'membre');
