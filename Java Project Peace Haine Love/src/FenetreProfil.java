@@ -5,7 +5,7 @@ import javax.swing.*;
 
 public class FenetreProfil extends JFrame{
     private JTextField nom, prenom, age, bio, email, password;
-    private JButton correspondancesButton, quitButton, editButton;
+    private JButton correspondancesButton, quitButton, editButton, questionnaireButton;
     private JPanel form;
     private Membre membreConnecte;
     private boolean modeEdition = false;
@@ -38,8 +38,10 @@ public class FenetreProfil extends JFrame{
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         correspondancesButton = new JButton("Afficher les correspondances");
         editButton = new JButton("Éditer le profil");
+        questionnaireButton = new JButton("Refaire le questionnaire");
         quitButton = new JButton("Quitter");
         actions.add(quitButton);
+        actions.add(questionnaireButton);
         actions.add(editButton);
         actions.add(correspondancesButton);
         add(actions, BorderLayout.SOUTH);
@@ -67,6 +69,10 @@ public class FenetreProfil extends JFrame{
 
         // Actions
         quitButton.addActionListener(e -> dispose());
+        questionnaireButton.addActionListener(e -> {
+            FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire(membreConnecte);
+            dispose();
+        });
         editButton.addActionListener(e -> {
 
             if (!modeEdition) {
