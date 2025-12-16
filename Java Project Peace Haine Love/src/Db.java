@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 
 public class Db {
@@ -263,6 +264,27 @@ public static void addMember(String nom, String prenom, String email, String pwd
         e.printStackTrace();
     }
 }
+    public static ArrayList<Reponse> getReponsesByQuestionId(int questionId) {
+    ArrayList<Reponse> reponses = new ArrayList<>();
+    try {
+        Statement stmt = Db.connexion();
+        String sql = "SELECT r.id, r.texte FROM reponse r WHERE r.id_question = " + questionId;
+        ResultSet rs = stmt.executeQuery(sql);
+
+        Question q = new Question(questionId, "", false);
+
+        while (rs.next()) {
+            double idReponse = rs.getDouble("id");
+            String texte = rs.getString("texte");
+            Reponse r = new Reponse(idReponse, texte, q); 
+            reponses.add(r);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return reponses;
+}
+
 
 }
  

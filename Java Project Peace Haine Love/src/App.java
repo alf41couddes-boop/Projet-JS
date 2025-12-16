@@ -49,8 +49,9 @@ public class App {
 
         
         //FenetreAccueil fenetre = new FenetreAccueil();
-        //FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire();
-        FenetreAdmin fenetreAdmin = new FenetreAdmin();
+        FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire(Db.getMembreByEmail("demo@phl.com"));
+        //FenetreProfil fenetrep = new FenetreProfil(Db.getMembreByEmail("demo@phl.com"));
+
 
     }
 }
