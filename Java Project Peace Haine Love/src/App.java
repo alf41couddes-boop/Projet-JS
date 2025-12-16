@@ -49,7 +49,7 @@ public class App {
 
         
         //FenetreAccueil fenetre = new FenetreAccueil();
-        FenetreQuestionnaire fenetreQuestionnaire = new FenetreQuestionnaire(Db.getMembreByEmail("demo@phl.com"));
+        FenetreAdmin fenetreAdmin = new FenetreAdmin();
         //FenetreProfil fenetrep = new FenetreProfil(Db.getMembreByEmail("demo@phl.com"));
 
 
