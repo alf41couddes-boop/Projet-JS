@@ -191,6 +191,34 @@ public static void addMember(String nom, String prenom, String email, String pwd
 
     return liste;
 }
+    public static void updateMembre(Membre m) {
+    try {
+        String url = "jdbc:mysql://localhost:3306/peace?useSSL=false&useUnicode=true";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(url, "user", "user");
+
+        String sql = """
+            UPDATE utilisateur
+            SET nom = ?, prenom = ?, age = ?, bio = ?
+            WHERE id = ?
+        """;
+
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, m.getNom());
+        pstmt.setString(2, m.getPrenom());
+        pstmt.setInt(3, m.getAge());
+        pstmt.setString(4, m.getBio());
+        pstmt.setInt(5, m.getId());
+
+        pstmt.executeUpdate();
+
+        pstmt.close();
+        conn.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
 }
  

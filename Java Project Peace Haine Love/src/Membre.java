@@ -68,4 +68,21 @@ public class Membre extends Utilisateur {
     public String getBio() {
         return bio;
     }
+
+        public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
 }

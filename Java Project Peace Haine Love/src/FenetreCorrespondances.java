@@ -28,6 +28,7 @@ public class FenetreCorrespondances extends JFrame {
         closeButton.addActionListener(e -> dispose());
 
         afficherCorrespondances();
+        setVisible(true);
     }
 
     private void afficherCorrespondances() {
